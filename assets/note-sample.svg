@@ -1,73 +1,59 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 448" width="720" height="448" font-family="system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif">
-  <g transform="scale(0.8)">
-  <rect width="900" height="560" fill="#ffffff"/>
-  <text x="24" y="30" font-size="17" font-weight="700" fill="#1f2328">整理成品长这样（每个数字都能点回平台核对）</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 520" font-family="system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif">
+  <rect width="620" height="520" fill="#ffffff"/>
+  <text x="16" y="22" font-size="14" font-weight="700" fill="#1f2328">整理成品结构（每个数字都能回平台核对）</text>
 
   <!-- 笔记卡片 -->
-  <rect x="24" y="48" width="560" height="480" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
+  <rect x="16" y="34" width="588" height="316" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
+  <text x="30" y="57" font-size="13" font-weight="700" fill="#1f2328">数字媒体传播 · 第 3 讲 媒介环境学</text>
 
-  <g>
-    <text x="44" y="78" font-size="15" font-weight="700" fill="#1f2328">数字媒体传播 · 第 3 讲 媒介环境学</text>
+  <rect x="30" y="66" width="560" height="38" rx="4" fill="#ddf4ff" stroke="#54aeff"/>
+  <text x="40" y="81" font-size="9.5" fill="#0a3069">整理时间：2026-10-10 ｜ 来源：学在城院·智云课堂 ｜ 整理方式：AI 辅助</text>
+  <text x="40" y="97" font-size="10" font-weight="700" fill="#0a3069">重点判定依据：课件文字 + 课堂转写　｜　sub_id 0000000　转写 1869 段　课件帧 346 帧</text>
 
-    <rect x="44" y="90" width="520" height="52" rx="4" fill="#ddf4ff" stroke="#54aeff"/>
-    <text x="54" y="108" font-size="10.5" fill="#0a3069">整理时间：2026-10-10 ｜ 来源：学在城院·智云课堂 ｜ 整理方式：AI 辅助</text>
-    <text x="54" y="124" font-size="10.5" font-weight="700" fill="#0a3069">重点判定依据：课件文字 + 课堂转写</text>
+  <text x="30" y="122" font-size="11.5" font-weight="700" fill="#1f2328">一、知识点梳理</text>
+  <text x="40" y="140" font-size="10.5" fill="#1f2328">• <tspan font-weight="700">媒介即环境</tspan>：媒介不是中性管道，它本身就是环境</text>
+  <text x="52" y="155" font-size="9.5" fill="#57606a">依据：帧 06:05 + 口述 06:05–09:30，老师举了三个例子</text>
+  <text x="40" y="176" font-size="10.5" fill="#1f2328">• <tspan font-weight="700">媒介的"偏向"</tspan>：不同媒介对时空有不同偏向</text>
+  <text x="52" y="191" font-size="9.5" fill="#57606a">依据：帧 11:48，口述一句带过 → <tspan font-weight="700">权重低，别当重点背</tspan></text>
 
-    <text x="44" y="168" font-size="12.5" font-weight="700" fill="#1f2328">一、知识点梳理</text>
-    <text x="54" y="188" font-size="11" fill="#1f2328">• <tspan font-weight="700">媒介即环境</tspan>：媒介不是中性管道，它本身就是环境</text>
-    <text x="66" y="205" font-size="10.5" fill="#57606a">依据：帧 06:05 + 口述 06:05–09:30，老师举了三个例子</text>
-    <text x="54" y="228" font-size="11" fill="#1f2328">• <tspan font-weight="700">媒介的"偏向"</tspan>：不同媒介对时空有不同偏向</text>
-    <text x="66" y="245" font-size="10.5" fill="#57606a">依据：帧 11:48，口述一句带过 → <tspan font-weight="700">权重低，别当重点背</tspan></text>
+  <text x="30" y="216" font-size="11.5" font-weight="700" fill="#1f2328">二、重点标注</text>
+  <text x="40" y="234" font-size="10.5" fill="#1f2328">★ "媒介即环境"——口述 06:05–09:30 反复展开，</text>
+  <text x="52" y="249" font-size="10.5" fill="#1f2328">且老师明确说"这个是本讲的核心命题"</text>
+  <text x="40" y="269" font-size="10.5" fill="#1f2328">★ 三位代表人物与观点对应——口述 14:20"这一部分要能对应上"</text>
 
-    <text x="44" y="278" font-size="12.5" font-weight="700" fill="#1f2328">二、重点标注</text>
-    <text x="54" y="298" font-size="11" fill="#1f2328">★ "媒介即环境"——口述 06:05–09:30 反复展开，</text>
-    <text x="66" y="314" font-size="11" fill="#1f2328">且老师明确说"这个是本讲的核心命题"</text>
-    <text x="54" y="334" font-size="11" fill="#1f2328">★ 三位代表人物与观点对应——口述 14:20"要能对应上"</text>
+  <text x="30" y="292" font-size="11.5" font-weight="700" fill="#1f2328">附：转写勘误</text>
+  <rect x="30" y="298" width="560" height="48" rx="4" fill="#ffffff" stroke="#d0d7de"/>
+  <text x="40" y="312" font-size="9.5" fill="#57606a">转写原文　　　应为　　　判定依据</text>
+  <line x1="40" y1="316" x2="580" y2="316" stroke="#d0d7de"/>
+  <text x="40" y="329" font-size="9.5" fill="#1f2328">媒介偏想　　　<tspan font-weight="700">媒介偏向</tspan>　　课件文字</text>
+  <text x="40" y="341" font-size="9.5" fill="#82071e">伊尼斯　　　　待核　　　无课件佐证，需回听录音</text>
 
-    <text x="44" y="366" font-size="12.5" font-weight="700" fill="#1f2328">五、本次遗漏</text>
-    <text x="54" y="386" font-size="11" fill="#1f2328">· 12:00–13:30 无课件帧（老师切白板），仅有口述</text>
-    <text x="54" y="403" font-size="11" fill="#1f2328">· 本笔记覆盖至 52:00，后半段未整理</text>
+  <!-- 图例 -->
+  <g font-size="9.5">
+    <rect x="16" y="364" width="290" height="42" rx="4" fill="#fff8c5" stroke="#bf8700"/>
+    <text x="26" y="379" font-size="10" font-weight="700" fill="#7d4e00">这行决定你敢不敢信 ★</text>
+    <text x="26" y="393" fill="#7d4e00">写"+ 课堂转写"才是有依据的，</text>
+    <text x="26" y="403" fill="#7d4e00">只写"课件文字"就是推测</text>
 
-    <text x="44" y="436" font-size="12.5" font-weight="700" fill="#1f2328">附：转写勘误</text>
-    <rect x="54" y="446" width="500" height="70" rx="4" fill="#ffffff" stroke="#d0d7de"/>
-    <text x="64" y="464" font-size="10.5" fill="#57606a">转写原文　　　应为　　　判定依据</text>
-    <line x1="64" y1="470" x2="544" y2="470" stroke="#d0d7de"/>
-    <text x="64" y="487" font-size="10.5" fill="#1f2328">媒介偏想　　　<tspan font-weight="700">媒介偏向</tspan>　　课件文字</text>
-    <text x="64" y="505" font-size="10.5" fill="#82071e">伊尼斯　　　　待核　　　无课件佐证，需回听录音</text>
+    <rect x="314" y="364" width="290" height="42" rx="4" fill="#ddf4ff" stroke="#54aeff"/>
+    <text x="324" y="379" font-size="10" font-weight="700" fill="#0a3069">时间戳 = 位置指针</text>
+    <text x="324" y="393" fill="#0a3069">不复制课件原文，凭 sub_id + 时间戳</text>
+    <text x="324" y="403" fill="#0a3069">回平台看原件</text>
+
+    <rect x="16" y="412" width="290" height="42" rx="4" fill="#dafbe1" stroke="#1a7f37"/>
+    <text x="26" y="427" font-size="10" font-weight="700" fill="#1a4621">重点必须写得出依据</text>
+    <text x="26" y="441" fill="#1a4621">"老师说了什么"只有转写知道，</text>
+    <text x="26" y="451" fill="#1a4621">课件上通常不写"这个要考"</text>
+
+    <rect x="314" y="412" width="290" height="42" rx="4" fill="#f6f8fa" stroke="#8c959f"/>
+    <text x="324" y="427" font-size="10" font-weight="700" fill="#1f2328">遗漏如实写，绝不编造</text>
+    <text x="324" y="441" fill="#57606a">拿不到就写拿不到，</text>
+    <text x="324" y="451" fill="#57606a">不拿空白冒充完整</text>
+
+    <rect x="16" y="460" width="588" height="42" rx="4" fill="#ffebe9" stroke="#cf222e"/>
+    <text x="26" y="475" font-size="10" font-weight="700" fill="#82071e">机器转写一定会听错术语</text>
+    <text x="26" y="489" fill="#82071e">实测：程度→成都、一人公司→艺人化的公司、起号→洗好。纠正不了的标「待核」，不要臆改。</text>
   </g>
 
-  <!-- 右侧标注 -->
-  <g font-size="11.5">
-    <line x1="584" y1="116" x2="628" y2="116" stroke="#8c959f" stroke-dasharray="3 3"/>
-    <rect x="628" y="96" width="248" height="42" rx="4" fill="#fff8c5" stroke="#bf8700"/>
-    <text x="640" y="114" fill="#7d4e00" font-weight="700">这行决定你敢不敢信 ★</text>
-    <text x="640" y="130" fill="#7d4e00">写了"+ 课堂转写"才有依据</text>
-
-    <line x1="584" y1="200" x2="628" y2="200" stroke="#8c959f" stroke-dasharray="3 3"/>
-    <rect x="628" y="176" width="248" height="56" rx="4" fill="#ddf4ff" stroke="#54aeff"/>
-    <text x="640" y="194" fill="#0a3069" font-weight="700">时间戳 = 位置指针</text>
-    <text x="640" y="210" fill="#0a3069">不复制课件原文，凭 sub_id</text>
-    <text x="640" y="222" fill="#0a3069">+ 时间戳回平台看原件</text>
-
-    <line x1="584" y1="306" x2="628" y2="306" stroke="#8c959f" stroke-dasharray="3 3"/>
-    <rect x="628" y="282" width="248" height="56" rx="4" fill="#dafbe1" stroke="#1a7f37"/>
-    <text x="640" y="300" fill="#1a4621" font-weight="700">重点必须写得出依据</text>
-    <text x="640" y="316" fill="#1a4621">"老师说了什么"只有转写知道，</text>
-    <text x="640" y="328" fill="#1a4621">课件上通常不写"这个要考"</text>
-
-    <line x1="584" y1="395" x2="628" y2="395" stroke="#8c959f" stroke-dasharray="3 3"/>
-    <rect x="628" y="371" width="248" height="56" rx="4" fill="#f6f8fa" stroke="#8c959f"/>
-    <text x="640" y="389" fill="#1f2328" font-weight="700">遗漏如实写，绝不编造</text>
-    <text x="640" y="405" fill="#57606a">拿不到就写拿不到，</text>
-    <text x="640" y="417" fill="#57606a">不拿空白冒充完整</text>
-
-    <line x1="584" y1="481" x2="628" y2="481" stroke="#8c959f" stroke-dasharray="3 3"/>
-    <rect x="628" y="457" width="248" height="56" rx="4" fill="#ffebe9" stroke="#cf222e"/>
-    <text x="640" y="475" fill="#82071e" font-weight="700">机器转写一定会听错术语</text>
-    <text x="640" y="491" fill="#82071e">实测：程度→成都、</text>
-    <text x="640" y="503" fill="#82071e">一人公司→艺人化的公司</text>
-  </g>
-
-  <text x="24" y="548" font-size="10.5" fill="#8c959f">示例内容为虚构，仅演示格式。真实课堂笔记含他人姓名与可定位信息，不得公开分发。</text>
-  </g>
+  <text x="16" y="514" font-size="9" fill="#8c959f">示例内容为虚构，仅演示格式。真实课堂笔记含他人姓名与可定位信息，不得公开分发。</text>
 </svg>
