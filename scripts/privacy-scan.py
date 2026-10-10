@@ -22,6 +22,7 @@
 
 import argparse
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -65,14 +66,28 @@ def load_keywords():
     return words
 
 
+def git_manifest():
+    """要上传的东西 = git 眼里的东西。不在 git 仓库里时返回 None，退回全盘扫。"""
+    try:
+        out = subprocess.run(
+            ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+            cwd=str(ROOT), capture_output=True, check=True).stdout
+    except Exception:
+        return None
+    return [x.decode("utf-8", "replace") for x in out.split(b"\0") if x]
+
+
 def iter_files():
-    for p in ROOT.rglob("*"):
-        if not p.is_file():
-            continue
-        rel = str(p.relative_to(ROOT))
+    names = git_manifest()
+    if names is None:
+        names = [str(p.relative_to(ROOT)) for p in ROOT.rglob("*") if p.is_file()]
+    for rel in names:
         if rel.startswith(".git/") or rel in SELF_EXCLUDE:
             continue
         if rel == "privacy-keywords.txt":
+            continue
+        p = ROOT / rel
+        if not p.is_file():
             continue
         if p.suffix.lower() not in SCAN_SUFFIXES and p.name not in {
                 ".gitignore", ".gitattributes", "LICENSE"}:
