@@ -75,3 +75,6 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+
+# ===== 隐私敏感词清单：含真实姓名，只留在本机，绝不提交 =====
+privacy-keywords.txt
