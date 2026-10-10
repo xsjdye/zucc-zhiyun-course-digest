@@ -187,8 +187,9 @@ zucc-zhiyun-course-digest/
 │   ├── 降级示例.md     AI 不能操作浏览器时的流程
 │   └── 笔记模板.md     输出的标准模板
 └── scripts/
-    ├── README.md       本目录说明（可选进阶，主流程用不到）
-    └── asr-setup.md    本地录音转写：先体检电脑再选模型
+    ├── README.md               本目录说明（可选进阶，主流程用不到）
+    ├── asr-setup.md            本地录音转写：先体检电脑再选模型
+    └── check-template-sync.py  模板一致性自检（改过模板后跑一下）
 ```
 
 ---

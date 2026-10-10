@@ -7,6 +7,18 @@
 | 文件 | 是什么 | 什么时候用 |
 |---|---|---|
 | [`asr-setup.md`](asr-setup.md) | 本地录音转写指南：**先体检电脑，再按配置选模型** | 你想把课堂录音变成文字，让「重点标注」有真实依据时 |
+| [`check-template-sync.py`](check-template-sync.py) | 检查输出模板在各文件间是否同步（零依赖，只用 Python 标准库） | 改过模板、加过章节之后跑一下：`python3 scripts/check-template-sync.py` |
+
+### 为什么需要 check-template-sync.py
+
+输出模板必然在 5 个文件里各写一遍——因为 `SKILL.md` 和 `PROMPT.md` 必须**自包含**（同学可能只把单个文件丢给 AI），这种重复是设计使然、不能消除。
+
+但重复带来漂移风险：改了一处忘了另一处。这个脚本把 `examples/note-template.md` 当作**唯一契约源**，自动检查其余 4 处是否包含同样的 header 字段与章节序列：
+
+```bash
+python3 scripts/check-template-sync.py        # 退出码 0 = 同步，1 = 发现漂移
+python3 scripts/check-template-sync.py -v     # 同时打印基准契约内容
+```
 
 ## 为什么主流程坚持零依赖
 
