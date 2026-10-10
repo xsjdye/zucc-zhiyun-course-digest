@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 448" width="720" height="448" font-family="system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif">
+  <g transform="scale(0.8)">
   <rect width="900" height="560" fill="#ffffff"/>
   <text x="24" y="30" font-size="17" font-weight="700" fill="#1f2328">整理成品长这样（每个数字都能点回平台核对）</text>
 
@@ -68,4 +69,5 @@
   </g>
 
   <text x="24" y="548" font-size="10.5" fill="#8c959f">示例内容为虚构，仅演示格式。真实课堂笔记含他人姓名与可定位信息，不得公开分发。</text>
+  </g>
 </svg>

@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 330" font-family="system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 264" width="720" height="264" font-family="system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif">
+  <g transform="scale(0.8)">
   <rect width="900" height="330" fill="#ffffff"/>
   <text x="24" y="30" font-size="17" font-weight="700" fill="#1f2328">核心机制：课件帧与课堂转写落在同一条秒级时间轴上</text>
   <text x="24" y="52" font-size="12.5" fill="#57606a">平台为每页课件记下 created_sec，转写每段带 BeginSec / EndSec —— 两者相减就是"这页老师实际讲了什么"</text>
@@ -63,4 +64,5 @@
   </g>
 
   <text x="876" y="318" font-size="10.5" fill="#8c959f" text-anchor="end">示意图，时间点取自 examples/usage-example.md（内容虚构）</text>
+  </g>
 </svg>
