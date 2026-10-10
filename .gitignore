@@ -1,0 +1,58 @@
+# ===== 输出笔记（同学本地生成，不进仓库）=====
+output/
+outputs/
+*.digest.md
+
+# ===== 本地配置（可能含账号等敏感信息）=====
+config/
+config.local.*
+*.cookie.json
+cookies.*.json
+
+# ===== 任何形式的凭据，一律不进仓库 =====
+*.key
+*.pem
+*.password
+.env
+.env.*
+
+# ===== 录音 / 转写产物：含课程内容，绝不上传 =====
+audio/
+recordings/
+*.m4a
+*.mp3
+*.wav
+*.aac
+*.srt
+*.vtt
+*.mp4
+*.mkv
+
+# ===== 课件原件：含学校内容，不上传 =====
+courseware/
+*.pptx
+*.ppt
+*.pdf
+
+# ===== ASR 模型权重：几百 MB 到几 GB，绝不进仓库 =====
+models/
+ggml-*.bin
+*.pt
+*.onnx
+funasr_models/
+
+# ===== 系统与编辑器 =====
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# ===== Python（若使用可选脚本）=====
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ===== 内部设计文档：本地留档，不上传 =====
+docs/
