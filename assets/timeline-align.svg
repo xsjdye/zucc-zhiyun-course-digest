@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 330" font-family="system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif">
+  <rect width="900" height="330" fill="#ffffff"/>
+  <text x="24" y="30" font-size="17" font-weight="700" fill="#1f2328">核心机制：课件帧与课堂转写落在同一条秒级时间轴上</text>
+  <text x="24" y="52" font-size="12.5" fill="#57606a">平台为每页课件记下 created_sec，转写每段带 BeginSec / EndSec —— 两者相减就是"这页老师实际讲了什么"</text>
+
+  <!-- 时间轴 -->
+  <line x1="60" y1="150" x2="860" y2="150" stroke="#d0d7de" stroke-width="2"/>
+  <g font-size="11" fill="#57606a" text-anchor="middle">
+    <text x="60" y="170">00:00</text>
+    <text x="260" y="170">03:00</text>
+    <text x="460" y="170">06:00</text>
+    <text x="660" y="170">09:00</text>
+    <text x="860" y="170">12:00</text>
+  </g>
+  <g stroke="#d0d7de" stroke-width="1">
+    <line x1="260" y1="145" x2="260" y2="155"/><line x1="460" y1="145" x2="460" y2="155"/>
+    <line x1="660" y1="145" x2="660" y2="155"/><line x1="860" y1="145" x2="860" y2="155"/>
+  </g>
+
+  <!-- 帧标记 -->
+  <g>
+    <line x1="112" y1="86" x2="112" y2="150" stroke="#cf222e" stroke-width="2"/>
+    <rect x="70" y="64" width="84" height="20" rx="4" fill="#cf222e"/>
+    <text x="112" y="78" font-size="11" fill="#fff" text-anchor="middle">帧 00:30</text>
+
+    <line x1="182" y1="108" x2="182" y2="150" stroke="#0969da" stroke-width="2"/>
+    <rect x="150" y="88" width="84" height="20" rx="4" fill="#0969da"/>
+    <text x="192" y="102" font-size="11" fill="#fff" text-anchor="middle">帧 03:12</text>
+
+    <line x1="357" y1="108" x2="357" y2="150" stroke="#0969da" stroke-width="2"/>
+    <rect x="315" y="88" width="84" height="20" rx="4" fill="#0969da"/>
+    <text x="357" y="102" font-size="11" fill="#fff" text-anchor="middle">帧 06:05</text>
+
+    <line x1="688" y1="108" x2="688" y2="150" stroke="#0969da" stroke-width="2"/>
+    <rect x="646" y="88" width="84" height="20" rx="4" fill="#0969da"/>
+    <text x="688" y="102" font-size="11" fill="#fff" text-anchor="middle">帧 11:48</text>
+  </g>
+
+  <!-- 归属区间 -->
+  <g font-size="11.5">
+    <rect x="70" y="186" width="112" height="30" rx="4" fill="#ffebe9" stroke="#cf222e" stroke-width="1"/>
+    <text x="126" y="205" fill="#82071e" text-anchor="middle">签到页 · 丢弃</text>
+
+    <rect x="182" y="186" width="175" height="30" rx="4" fill="#ddf4ff" stroke="#0969da" stroke-width="1"/>
+    <text x="269" y="205" fill="#0a3069" text-anchor="middle">知识点 A 的讲解</text>
+
+    <rect x="357" y="186" width="331" height="30" rx="4" fill="#ddf4ff" stroke="#0969da" stroke-width="1"/>
+    <text x="522" y="205" fill="#0a3069" text-anchor="middle">知识点 B 的讲解（3 分 43 秒，展开最久）</text>
+
+    <rect x="688" y="186" width="172" height="30" rx="4" fill="#ddf4ff" stroke="#0969da" stroke-width="1"/>
+    <text x="774" y="205" fill="#0a3069" text-anchor="middle">知识点 C（一句带过）</text>
+  </g>
+
+  <!-- 判定结论 -->
+  <g font-size="12">
+    <text x="24" y="252" font-weight="700" fill="#1f2328">由此得到的判定，而不是靠课件版式猜：</text>
+    <circle cx="34" cy="272" r="3.5" fill="#1a7f37"/>
+    <text x="46" y="276" fill="#1f2328">B 停留 3 分 43 秒且反复展开 → <tspan font-weight="700">标为重点，依据写进笔记</tspan></text>
+    <circle cx="34" cy="293" r="3.5" fill="#bf8700"/>
+    <text x="46" y="297" fill="#1f2328">C 页面停留但口述一句带过 → 权重低，不标重点</text>
+    <circle cx="34" cy="314" r="3.5" fill="#cf222e"/>
+    <text x="46" y="318" fill="#1f2328">开场帧是整屏截图（签到码 / 浏览器标签）→ 无知识点，丢弃</text>
+  </g>
+
+  <text x="876" y="318" font-size="10.5" fill="#8c959f" text-anchor="end">示意图，时间点取自 examples/usage-example.md（内容虚构）</text>
+</svg>

@@ -52,7 +52,8 @@ WARN_PATTERNS = [
 ]
 
 SCAN_SUFFIXES = {".md", ".py", ".sh", ".txt", ".json", ".yaml", ".yml",
-                 ".toml", ".cfg", ".ini", ".html", ".css", ".js"}
+                 ".toml", ".cfg", ".ini", ".html", ".css", ".js",
+                 ".svg", ".xml"}
 
 
 def load_keywords():
