@@ -1,15 +1,23 @@
-# ===== 输出笔记（同学本地生成，不进仓库）=====
-output/
-outputs/
+# ════════════════════════════════════════════════════════════════
+#  原则：排除要「精准」，不要「全局按扩展名扫」
+#  上一版写了全局 *.pdf / *.pptx / docs/，会静默吞掉仓库自己需要的
+#  示例文件，而且 git 不给任何提示。
+#
+#  怀疑文件被静默忽略时，用这两条查：
+#      git status --ignored --short
+#      git check-ignore -v 路径/文件名
+# ════════════════════════════════════════════════════════════════
+
+# ===== 输出笔记（本地生成，不进仓库）=====
+/output/
+/outputs/
 *.digest.md
 
-# ===== 本地配置（可能含账号等敏感信息）=====
-config/
+# ===== 本地配置与凭据：一律不进仓库 =====
+/config/
 config.local.*
 *.cookie.json
-cookies.*.json
-
-# ===== 任何形式的凭据，一律不进仓库 =====
+cookies*.json
 *.key
 *.pem
 *.password
@@ -17,8 +25,11 @@ cookies.*.json
 .env.*
 
 # ===== 录音 / 转写产物：含课程内容，绝不上传 =====
-audio/
-recordings/
+/audio/
+/recordings/
+/media/
+/cache/
+/.cache/
 *.m4a
 *.mp3
 *.wav
@@ -29,17 +40,28 @@ recordings/
 *.mkv
 
 # ===== 课件原件：含学校内容，不上传 =====
-courseware/
+/courseware/
 *.pptx
 *.ppt
 *.pdf
 
 # ===== ASR 模型权重：几百 MB 到几 GB，绝不进仓库 =====
-models/
+/models/
+/funasr_models/
 ggml-*.bin
 *.pt
 *.onnx
-funasr_models/
+
+# ===== 例外：examples/ 允许放示例素材 =====
+# ⚠️ 只能放**虚构**素材。真实课程录音、真实课件一律不得进仓库。
+# 这里没给音频（*.mp3 / *.m4a）开例外——示例不需要真实录音。
+!examples/*.pdf
+!examples/*.pptx
+!examples/*.srt
+
+# ===== 内部设计文档：只挡仓库根那一个 =====
+# 用前导 / 限定，这样 examples/docs/、scripts/docs/ 之类不受影响
+/docs/
 
 # ===== 系统与编辑器 =====
 .DS_Store
@@ -53,6 +75,3 @@ __pycache__/
 *.pyc
 .venv/
 venv/
-
-# ===== 内部设计文档：本地留档，不上传 =====
-docs/

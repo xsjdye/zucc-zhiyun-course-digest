@@ -40,6 +40,18 @@
 - 已做破坏性测试验证：删字段能抓到、章节逆序能抓到、改基准能同时报出 4 处缺项
 - 允许同一文件内模板出现多遍（`SKILL.md` 含标准模板 + 示例两处），不误报
 
+### .gitignore 精准化（修静默挡漏）
+
+上一版用全局 `*.pdf` / `*.pptx` / `docs/` 排除，会**静默吞掉仓库自己需要的示例文件**，git 不给任何提示。
+
+- 目录类排除一律加前导 `/`，只作用于仓库根：`/output/` `/docs/` `/courseware/` `/models/` `/config/` 等
+  - 因此 `examples/docs/`、`scripts/docs/` 之类不再被误伤
+- 给 `examples/` 开例外：`!examples/*.pdf`、`!examples/*.pptx`、`!examples/*.srt`
+  - **不给音频开例外**（`*.mp3` / `*.m4a` 仍全局忽略）——示例不需要真实录音，真实课程内容一律不得进仓库
+- 修 `cookies.*.json` 匹配不到 `cookies.json` 的漏洞，改为 `cookies*.json`
+- 文件头写明排查命令：`git status --ignored --short` 与 `git check-ignore -v <文件>`
+- 15 条用例全部实测通过（含凭据类底线：`.key` / `.pem` / `.env` / `cookies*.json` 仍被挡住）
+
 ---
 
 ## [v0.1.1] — 2026-10-10
