@@ -83,13 +83,21 @@ echo "Apple Silicon?: $(uname -m)"     # arm64 = 是；x86_64 = Intel 老机器
 
 ```bash
 brew install whisper-cpp ffmpeg
-# 中文用不带 .en 的模型；small 是 8GB 机器的平衡点
+```
+
+然后下模型。**中文必须用不带 `.en` 的模型**（`.en` 只认英文），`small` 是 8GB 机器的平衡点：
+
+```bash
+# 通道 ① 镜像 —— 国内先试这个（实测 huggingface.co 经常连不上，而 hf-mirror.com 通）
+curl -L -o ~/ggml-small.bin https://hf-mirror.com/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
+
+# 通道 ② 官方源 —— 上面失败再试这条
 curl -L -o ~/ggml-small.bin https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
 ```
 
 **Windows**（三选一，按你的情况）
 
-1. **官方 Releases 找预编译包**（最省事，不用装编译器）：去 whisper.cpp 仓库的 Releases 页看有没有 Windows 压缩包；有就下载解压，同样下 `ggml-small.bin` 模型。
+1. **官方 Releases 找预编译包**（最省事，不用装编译器）：去 whisper.cpp 仓库的 Releases 页看有没有 Windows 压缩包；有就下载解压。模型同样下 `ggml-small.bin`，**国内优先用镜像通道**：`https://hf-mirror.com/ggerganov/whisper.cpp/resolve/main/ggml-small.bin`（浏览器直接点开也能下）。
 2. **用 WSL**：在 PowerShell 里 `wsl --install`，进 WSL 后按上面 macOS 的 Linux 版步骤走。
 3. **自己编译**：需要装 CMake + Visual Studio Build Tools，非科班不推荐。
 
@@ -102,6 +110,27 @@ pip install funasr modelscope torch
 ```
 
 > ⚠️ 关于 FunASR 的速度，公开资料说法**互相矛盾**：有实测说 i5 笔记本处理 5 分钟音频只要 8 秒，也有资料说纯 CPU 会从 5 倍实时掉到 0.3 倍实时（即 1 分钟音频要 3 分半）。**所以我无法给你保证值——先拿一段 5 分钟的录音试跑**，能接受再转整节课。
+
+---
+
+## 第 2.5 步 · 装完先验证这三件事（别急着往下走）
+
+最常见的坑是**以为装好了，其实模型只下到一个几百字节的错误页**。三条全过再转整节课：
+
+```bash
+# ① 命令在不在（有输出 = 装好了；command not found = 回到第 2 步）
+whisper-cli --help | head -3
+
+# ② 模型大小对不对：small 实测约 465 MB（487,601,967 字节）。只有几 KB = 下到了错误页，换镜像通道重下
+ls -lh ~/ggml-small.bin
+
+# ③ 拿 30 秒录音试跑（不要一上来就丢 45 分钟的整节课）
+ffmpeg -i 试音.m4a -ar 16000 -ac 1 试音.wav
+whisper-cli -m ~/ggml-small.bin -l zh -f 试音.wav -osrt -of 试音
+head 试音.srt
+```
+
+第 ③ 步能在 `试音.srt` 里看到**正确的中文**，才算真的跑通了。
 
 ---
 
@@ -145,6 +174,8 @@ AI 就会把「重点判定依据」那一行从 `课件文字` 改成 `课件�
 
 | 现象 | 原因 / 解法 |
 |---|---|
+| 模型下载卡住 / 下下来只有几 KB | HuggingFace 直连被掐（国内非常常见）。换 `hf-mirror.com` 镜像通道重下，或直接用浏览器打开镜像链接 |
+| 转写没有任何输出 | 模型没下全或路径写错。先跑「第 2.5 步」的第 ② 条确认文件大小 |
 | 转出来是日文或乱码 | 用了 `.en` 模型，或没加 `-l zh` |
 | 装完跑不起来（缺 ffmpeg） | 音频转码需要 ffmpeg；macOS `brew install ffmpeg` |
 | 转 45 分钟录音等了很久 | 正常。CPU 上大模型很慢；换 `base`/`small`，或先切一段试听 |
