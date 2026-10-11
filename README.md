@@ -251,6 +251,7 @@ AI 是**读图**而不是解析 `.pptx`——有视觉能力的 AI 不需要装 
 | 情况 | 怎么办 |
 |---|---|
 | **登录页闪一下就没了** | AI 在重定向途中**又导航了一次**。别再导航，让登录页停住，你自己输完账号密码，再让 AI 重新判定登录态 |
+| **登录页报 `ERR_TUNNEL_CONNECTION_FAILED` / 拒绝连接** | `ca.hzcu.edu.cn` **只有 HTTP，没有 HTTPS**。确认地址栏是 `http://` 开头；不行就关掉浏览器"始终使用安全连接"，或改走路径 B（不需要这个域名） |
 | AI 报 `ERR_ABORTED` / `chrome-error` 打不开 classroom | **不是站点挂了**。未登录时 `classroom` 返回 200 + 前端外壳，由 SPA 用 JS 跳去 `ca.hzcu.edu.cn/cas/login`，工具把这一跳的中断误报成了失败 |
 | AI 的浏览器里没有登录态 | 正常，第一次用都会这样。在它打开的登录页里登一次就行，之后不用再登 |
 | 脚本报 `Failed to fetch` | 你不在 `classroom.hzcu.edu.cn` 域下。城院其它域名（如 `education.hzcu.edu.cn`）会被跨域策略拦掉 |

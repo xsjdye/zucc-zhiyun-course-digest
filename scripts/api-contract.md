@@ -44,6 +44,18 @@ classroom.hzcu.edu.cn
 
 `get-time-quantum` 是**公开接口**（无 Cookie 也返回 200 真实数据），**不能**拿来当登录探针。
 
+**`ca.hzcu.edu.cn` 只有 HTTP，没有 HTTPS**（实测 2026-10-11）：
+
+| 请求 | 结果 |
+|---|---|
+| `http://ca.hzcu.edu.cn/cas/login` | **200**，正常返回登录表单 |
+| `https://ca.hzcu.edu.cn/cas/login` | **000 / 0.011 秒失败**（443 拒绝连接，主机没在监听） |
+
+DNS 正常解析、`/etc/hosts` 无条目、系统代理关闭——所以 `ERR_TUNNEL_CONNECTION_FAILED`
+的唯一成因就是**客户端试图用 HTTPS 连它**。Chrome 的"始终使用安全连接"、HSTS 缓存、
+或自动化工具把 URL 规范化成 `https://`，都会让登录页打不开。
+classroom 发出的跳转本身用的是 `http://`，正常路径下不会踩到；一旦有人手工把地址改成 https 就会卡死。
+
 ---
 
 ## 1. 课表：定位课时，拿 `sub_id` / `course_id`
