@@ -137,3 +137,68 @@ async function zccFetch(date, keyword, opts) {
     }
   };
 }
+
+
+/*
+ * zccProbe() —— 登录态预检：**不导航**，一次 fetch 就判定
+ *
+ * 为什么需要它：classroom.hzcu.edu.cn 未登录时不会返回 302，而是照常返回 200 + 前端外壳，
+ * 由 SPA 自己用 JS 跳去 https://yjlogin.hzcu.edu.cn（见其 static/config.js 的 LOGIN_URL）。
+ * Agent 若在跳转在途时再发起一次导航，就会把登录页反复冲掉——表现为"登录页闪一下就没"。
+ * 所以正确做法是先探测，再决定要不要打扰用户，而不是导航进去追。
+ *
+ * 实测依据：未登录时课表接口返回 HTTP 200 且 body 为
+ *   {"success":true,"result":{"err":0,"errMsg":"","data":"未传入token"}}
+ * 这是个干净的机器可读信号。
+ *
+ * 用法：await zccProbe()
+ *   → { loggedIn: true,  host: 'classroom.hzcu.edu.cn', uidResolved: true }
+ *   → { loggedIn: false, why: 'not-logged-in', ... }   ← 此时**不要重新导航**，交给用户登录
+ *   → { loggedIn: false, why: 'wrong-origin', host: 'yjlogin.hzcu.edu.cn' }
+ */
+async function zccProbe() {
+  var API = 'https://yjapi.hzcu.edu.cn';
+  var TENANT = '21';
+  var host = location.hostname;
+  var onCas = host === 'ca.hzcu.edu.cn' || /\/cas\/login/i.test(location.pathname);
+
+  if (host !== 'classroom.hzcu.edu.cn') {
+    return {
+      loggedIn: false,
+      why: onCas ? 'on-login-page' : 'wrong-origin',
+      host: host,
+      action: onCas
+        ? '这就是登录页，它已经稳定停住了。⚠️ 现在**绝对不要再调用 navigate / goto**：' +
+          '重新导航会打断 CAS 的回跳，把这张表单冲掉，表现就是"登录页闪一下就没"。' +
+          '请用户在**当前这个窗口**里自己输入账号密码登录，然后轮询本函数直到 loggedIn 为 true。'
+        : '请在 https://classroom.hzcu.edu.cn/ 页面内运行本脚本'
+    };
+  }
+
+  var uid = '';
+  try { uid = String(JSON.parse(sessionStorage.getItem('user') || '{}').user_id || ''); } catch (e) {}
+  if (!uid) {
+    var m = document.cookie.match(/(?:^|; )login_cmc_id=([^;]+)/);
+    if (m) uid = decodeURIComponent(m[1]);
+  }
+  if (!uid) return { loggedIn: false, why: 'no-identity', host: host, action: '页面里没有登录身份，需要用户在浏览器完成登录' };
+
+  var r;
+  try {
+    r = await (await fetch(API + '/courseapi/v2/schedule/get-week-schedules?user_id=' +
+      encodeURIComponent(uid) + '&tenant_id=' + TENANT +
+      '&start_at=2000-01-03&end_at=2000-01-07', { credentials: 'include' })).json();
+  } catch (e) {
+    return { loggedIn: false, why: 'fetch-failed', host: host, detail: String(e).slice(0, 80) };
+  }
+
+  var data = r && r.result && r.result.data;
+  if (typeof data === 'string' && data.indexOf('未传入token') >= 0) {
+    return {
+      loggedIn: false, why: 'not-logged-in', host: host, uidResolved: true,
+      action: '有身份标识但会话无效。不要重新导航（会把登录页冲掉）；' +
+              '请用户在当前可见窗口完成登录，然后轮询本函数直到 loggedIn 为 true。'
+    };
+  }
+  return { loggedIn: true, host: host, uidResolved: true, shape: typeof data };
+}

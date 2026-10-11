@@ -18,6 +18,34 @@
 
 ---
 
+## 0.5 登录态怎么判定（别用导航去试）
+
+**实测重定向链**（未登录访问 classroom）：
+
+```
+classroom.hzcu.edu.cn
+  → yjapi.hzcu.edu.cn/casapi/index.php?r=auth/login&auType=cmc&tenant_code=21&forward=…
+    → ca.hzcu.edu.cn/cas/login?service=…        ← 统一身份认证表单在这里
+```
+
+两个反直觉的点：
+
+1. **`classroom` 不返回 302。** 它照常返回 `HTTP 200` + 前端外壳（约 15 KB），
+   跳转是 SPA 用 JS 做的（`static/config.js` 里写着 `LOGIN_URL = https://yjlogin.hzcu.edu.cn`）。
+   所以浏览器自动化工具会把这次导航报成 `ERR_ABORTED` / `chrome-error`——**这是跳转在途，不是失败**。
+2. **未登录时课表接口仍返回 200**，只是 body 变成：
+   ```json
+   {"success":true,"result":{"err":0,"errMsg":"","data":"未传入token"}}
+   ```
+   这是个干净的机器可读信号，用它判定登录态，**不要用重新导航去试**。
+
+> 🔴 报 `ERR_ABORTED` 后重试导航 = 打断 CAS 回跳 = 用户看到"登录页闪一下就没了"，然后永远登不进去。
+> 正确做法：导航一次 → 等 `location.hostname` 稳定 → 轮询 `zccProbe()`。
+
+`get-time-quantum` 是**公开接口**（无 Cookie 也返回 200 真实数据），**不能**拿来当登录探针。
+
+---
+
 ## 1. 课表：定位课时，拿 `sub_id` / `course_id`
 
 ```

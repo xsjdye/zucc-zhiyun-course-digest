@@ -211,6 +211,9 @@ AI 是**读图**而不是解析 `.pptx`——有视觉能力的 AI 不需要装 
 
 | 情况 | 怎么办 |
 |---|---|
+| **登录页闪一下就没了** | AI 在重定向途中**又导航了一次**。别再导航，让登录页停住，你自己输完账号密码，再让 AI 重新判定登录态 |
+| AI 报 `ERR_ABORTED` / `chrome-error` 打不开 classroom | **不是站点挂了**。未登录时 `classroom` 返回 200 + 前端外壳，由 SPA 用 JS 跳去 `ca.hzcu.edu.cn/cas/login`，工具把这一跳的中断误报成了失败 |
+| AI 的浏览器里没有登录态，要你重新登录 | 说明它驱动的是独立 profile。**别在陌生窗口登录**，直接走路径 B（你自己浏览器粘脚本） |
 | 脚本报 `Failed to fetch` | 你不在 `classroom.hzcu.edu.cn` 域下。城院其它域名（如 `education.hzcu.edu.cn`）会被跨域策略拦掉 |
 | AI 说"我不能打开浏览器" | 正常，走路径 B |
 | AI 要你提供账号密码 | **不要给。** 提醒它复用已登录会话或让你自己跑脚本；坚持要就换个 AI |
@@ -219,6 +222,9 @@ AI 是**读图**而不是解析 `.pptx`——有视觉能力的 AI 不需要装 
 | `transcript.available` 是 false | 该课转写未生成或无回放 → 走本地转写兜底，或如实标注"仅基于课件" |
 | 一节课太长、整理不完 | 用 `{maxSec: 900}` 先跑前 15 分钟；或按时间段分批 |
 | 想要更简 / 更详细 | 直接说"要精简版"或"要详细版"，AI 会切换详略档位 |
+
+登录态不用靠猜——`scripts/fetch-lesson.js` 里的 `zccProbe()` 一次 fetch 就能拿到
+`loggedIn` 和原因（`on-login-page` / `not-logged-in` / `wrong-origin` / `no-identity`）。
 
 接口字段、返回结构、全部已知坑，写在 [`scripts/api-contract.md`](scripts/api-contract.md)。
 

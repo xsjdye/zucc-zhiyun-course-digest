@@ -27,6 +27,32 @@
 
 **不触发**：我要"整理整门课""所有课时都整理"时，先告诉我一次只做一个课时，问从哪节开始。
 
+## 第零步 · 登录态预检（最容易卡住，别跳过）
+
+未登录时的实测重定向链：
+
+```
+classroom.hzcu.edu.cn
+  → yjapi.hzcu.edu.cn/casapi/index.php?r=auth/login&…
+    → ca.hzcu.edu.cn/cas/login?service=…     ← 登录表单在这里
+```
+
+`classroom` **不发 302**，它返回 200 + 前端外壳，跳转由 SPA 用 JS 做。
+所以浏览器工具会把这次导航报成 `ERR_ABORTED` / `chrome-error`——**这不是站点挂了**。
+
+> 🔴 **别在报 `ERR_ABORTED` 后重试导航。** 那是跳转在成功进行。
+> 再导航一次就会打断 CAS 回跳，我会看到"登录页闪一下就没了"，然后永远登不进去。
+
+正确做法：导航**一次** → 等 `location.hostname` 稳定 → 跑 `scripts/fetch-lesson.js` 里的 `zccProbe()`：
+
+- `loggedIn:true` → 继续
+- `why:"on-login-page"` 或 `"not-logged-in"` → **不要再导航**，让我在当前可见窗口自己输账号密码登录，
+  然后你**轮询 `zccProbe()`** 直到 `loggedIn:true`
+- `why:"wrong-origin"` → 切到 classroom 页面再跑
+
+**如果你的浏览器工具用的是独立 profile / 干净的 Chrome 实例（没有学校登录态）**，
+别硬拉我在陌生窗口里重新登录——直接改走路径 B，那本来就是给这种情况准备的。
+
 ## 第一步 · 确认（不要跳过）
 
 1. **安全告知**——同一会话只说一次全文，之后一句话带过即可。
