@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""检查输出模板在仓库各文件间是否同步。
+"""检查输出模板在仓库各文件间是否同步（v2 · 框架优先 + 双轨分层 + 按段定位）。
 
-单一事实源：`examples/note-template.md` 定义模板契约（header 字段 + 章节序列）。
-其余文件（SKILL.md / PROMPT.md / 两个示例）必须包含同样的字段与章节。
+单一事实源：`examples/note-template.md` 定义模板契约。
+其余文件（SKILL.md / PROMPT.md / 两个示例）必须包含同样的字段、章节与【课】/【延】标记。
 
 为什么要这个脚本：SKILL.md 与 PROMPT.md 必须**自包含**（同学可能只把单个文件丢给
 AI），所以模板必然在多处重复。重复是设计使然、不能消除，但**漂移**可以自动发现。
@@ -22,8 +22,6 @@ import re
 import sys
 from pathlib import Path
 
-# Windows / 被管道捕获时 locale 常是 GBK 或 C，直接 print 中文会 UnicodeEncodeError 崩掉。
-# 这里强制把输出切成 UTF-8（编不出的字符降级成 ?），宁可显示乱码也不要让门禁跑不起来。
 if hasattr(sys.stdout, "reconfigure"):
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -40,15 +38,36 @@ TARGETS = [
     "examples/fallback-example.md",
 ]
 
-FIELD_RE = re.compile(r"([\u4e00-\u9fa5]{2,8})\s*[：:]")
-SECTION_RE = re.compile(r"^##\s*([一二三四五六七八九十]+、.+?)\s*$", re.M)
-ANY_H2_RE = re.compile(r"^##\s+(.+?)\s*$", re.M)
 TEMPLATE_BLOCK_RE = re.compile(r"```markdown\n(.*?)```", re.S)
 
-# 只有「用到了课堂转写」时才必须出现的结构。降级示例（无转写）可以没有。
-TRANSCRIPT_ONLY_HEADINGS = {"附：转写勘误"}
-TRANSCRIPT_MARKERS = ["- 依据：", "｜转写 ", "｜课件帧 "]
-# 声明自己走了转写的文件；其余按降级路径要求
+# v2 必现标题（要在 markdown 模板块内出现；变量「第 N 段」单列）
+REQUIRED_HEADINGS = [
+    "骨架",
+    "重点",
+    "待办",
+    "遗漏",
+]
+
+# v2 双轨标记：每个走转写的文件至少各出现一次
+DUAL_TRACK_MARKERS = ["【课】", "【延】"]
+
+# 易混易错点是可选（自媒体类课不需要；概念重的课保留）
+OPTIONAL_HEADINGS = ["易混易错点"]
+
+# v2 新增 front matter 标记：每个 ```markdown 模板块内都要带
+V2_FRONT_MATTER_KEYS = ["format: v2", "persona:"]
+
+# 「第 N 段（...）」是变量计数的，逐个匹配
+SEGMENT_RE = re.compile(r"^##\s*第\s*\d+\s*段[（(]", re.M)
+ANY_H2_RE = re.compile(r"^##\s+(.+?)\s*$", re.M)
+
+# 「附：转写勘误」等老格式被认为漂移——v2 已统一为「转写勘误」
+LEGACY_HEADINGS_TO_FORBID = [
+    "一、知识点梳理", "二、重点标注", "三、易混易错点",
+    "四、课后待办", "五、本次遗漏", "附：转写勘误",
+]
+
+# 只有用转写的文件才要求「转写勘误」+【课】/【延】。降级示例没有转写，但【延】仍要。
 FULL_PATH_FILES = {
     "examples/note-template.md",
     "SKILL.md",
@@ -58,26 +77,37 @@ FULL_PATH_FILES = {
 
 
 def template_block(text):
-    m = TEMPLATE_BLOCK_RE.search(text)
-    return m.group(1) if m else text
+    """按行解析 ```markdown 围栏；嵌套 ```mermaid 视作内容层、不收尾。
 
-
-def extract(text):
-    """返回 (header 字段集合, 编号章节列表, 模板块内全部 ## 标题)。
-
-    字段只从 `>` 引用行里取，避免把正文里的冒号误当模板字段。
-    标题从 ```markdown 模板块内取，所以「附：转写勘误」这类非编号章节也在契约里——
-    早先只比对「一、二、三…」，导致新增小节漂移检查不到。
+    用「是否处于内层围栏」一个布尔即可：开标签（```mermaid）置 True，
+    纯 ``` 行若在 True 状态就关内层、若在 False 状态就是外层收尾。
     """
-    fields = set()
-    for line in text.splitlines():
+    in_block = False
+    inside = False
+    out = []
+    for line in text.split('\n'):
+        if not in_block:
+            if line.startswith('```') and line.lstrip('`').startswith('markdown'):
+                in_block = True
+            continue
         s = line.strip()
-        if s.startswith(">"):
-            fields |= set(FIELD_RE.findall(s))
-    blk = template_block(text)
-    sections = [m.group(1).strip() for m in SECTION_RE.finditer(blk)]
-    headings = [m.group(1).strip() for m in ANY_H2_RE.finditer(blk)]
-    return fields, sections, headings
+        if s.startswith('```'):
+            # 纯反引号（3 个或更多）= 闭合围栏；有其他字符 = 开新围栏
+            if all(c == '`' for c in s) and len(s) >= 3:
+                if not inside:
+                    return '\n'.join(out)
+                inside = False
+                out.append(line)
+            else:
+                inside = True
+                out.append(line)
+        else:
+            out.append(line)
+    return '\n'.join(out)
+
+
+def extract_headings(blk):
+    return [m.group(1).strip() for m in ANY_H2_RE.finditer(blk)]
 
 
 def main():
@@ -90,16 +120,20 @@ def main():
         print(f"❌ 基准文件不存在：{BASELINE}", file=sys.stderr)
         return 2
 
-    base_fields, base_sections, base_headings = extract(base_path.read_text(encoding="utf-8"))
-    if not base_sections:
-        print(f"❌ 基准文件里没解析到编号章节，模板写法可能被改动：{BASELINE}", file=sys.stderr)
+    base_blk = template_block(base_path.read_text(encoding="utf-8"))
+    base_headings = extract_headings(base_blk)
+    base_segments = SEGMENT_RE.findall(base_blk)
+    if not base_segments:
+        print(f"❌ 基准文件里没解析到「第 N 段」标题，模板写法可能被改动：{BASELINE}", file=sys.stderr)
         return 2
 
     if args.verbose:
         print(f"基准契约（来自 {BASELINE}）")
-        print(f"  header 字段：{', '.join(sorted(base_fields))}")
-        print(f"  章节序列：{' → '.join(base_sections)}")
-        print(f"  全部 ## 标题：{', '.join(base_headings)}")
+        print(f"  必现 ## 标题：{', '.join(REQUIRED_HEADINGS)}")
+        print(f"  双轨标记：{', '.join(DUAL_TRACK_MARKERS)}（每个走转写的文件各出现至少一次）")
+        print(f"  front matter 标记：{', '.join(V2_FRONT_MATTER_KEYS)}（每个 ```markdown 模板块内都要带）")
+        print(f"  可选：{', '.join(OPTIONAL_HEADINGS)}（缺不报错）")
+        print(f"  禁用（v1 残留）：{', '.join(LEGACY_HEADINGS_TO_FORBID)}")
         print()
 
     drifted = []
@@ -112,42 +146,57 @@ def main():
             continue
 
         text = p.read_text(encoding="utf-8")
-        fields, sections, headings = extract(text)
+        # 允许同文件里 ```markdown 块出现多遍（SKILL.md 有两处）；
+        # 只要第一块满足契约即可。后面「示例对话」中的块是示例不是契约。
+        first_blk = template_block(text)
+        headings = extract_headings(first_blk)
         problems = []
 
-        missing_fields = base_fields - fields
-        if missing_fields:
-            problems.append(f"缺 header 字段：{', '.join(sorted(missing_fields))}")
+        # 必现 ## 标题（用前缀匹配，容忍标题带括号/说明文字）
+        for h in REQUIRED_HEADINGS:
+            if not any(x == h or x.startswith(h + '（') or x.startswith(h + ' ') or x.startswith(h + '(') for x in headings):
+                problems.append(f"缺必现标题「{h}」")
 
-        # 标题契约：走转写的文件要求全部标题；降级文件豁免「附：转写勘误」
-        required = list(base_headings)
-        if rel not in FULL_PATH_FILES:
-            required = [h for h in required if h not in TRANSCRIPT_ONLY_HEADINGS]
-        missing_sections = [h for h in required if h not in headings]
-        if missing_sections:
-            problems.append(f"缺章节：{'、'.join(missing_sections)}")
+        # 可选章节只警告
+        optional_present = [h for h in OPTIONAL_HEADINGS if h in headings]
+        optional_missing = [h for h in OPTIONAL_HEADINGS if h not in headings]
 
+        # v1 残留禁用
+        legacy_present = [h for h in LEGACY_HEADINGS_TO_FORBID if h in headings]
+        if legacy_present:
+            problems.append(f"残留 v1 标题「{'、'.join(legacy_present)}」")
+
+        # v2 front matter 标记
+        for k in V2_FRONT_MATTER_KEYS:
+            if k not in first_blk:
+                problems.append(f"缺 front matter 标记「{k}」")
+
+        # 双轨标记（走转写的文件必须有）
         if rel in FULL_PATH_FILES:
-            missing_markers = [k for k in TRANSCRIPT_MARKERS if k not in text]
-            if missing_markers:
-                problems.append(f"缺转写版结构标记：{', '.join(missing_markers)}")
+            for m in DUAL_TRACK_MARKERS:
+                if m not in text:
+                    problems.append(f"缺双轨标记「{m}」")
 
-        # 顺序检查：允许模板在同一文件里出现多遍（SKILL.md 就有「标准模板 + 示例」两处），
-        # 所以只禁止真正的逆序——序号回退时必须是重新开始（回到第一段）
-        idx = {s: i for i, s in enumerate(base_sections)}
-        seq = [idx[s] for s in sections if s in idx]
-        for a, b in zip(seq, seq[1:]):
-            if b <= a and b != 0:
-                problems.append(f"章节顺序不一致：实际 {' → '.join(sections)}")
-                break
+        # 至少一段「第 N 段（...）」
+        if not SEGMENT_RE.search(first_blk):
+            problems.append("缺「第 N 段（HH:MM–HH:MM）」结构")
 
         if problems:
             drifted.append((rel, problems))
             print(f"❌ {rel}")
             for m in problems:
                 print(f"     - {m}")
+            for m in optional_present:
+                print(f"     - i 「{m}」可选但已出现，OK")
+            if optional_missing:
+                print(f"     - i 「{'、'.join(optional_missing)}」可选，未出现，OK")
         else:
-            print(f"✅ {rel}")
+            extra = []
+            for m in optional_present:
+                extra.append(f"「{m}」可选已出现")
+            for m in optional_missing:
+                extra.append(f"「{m}」可选未出现")
+            print(f"✅ {rel}  ({'; '.join(extra) if extra else '无可选章节'})")
 
     print()
     if drifted:
