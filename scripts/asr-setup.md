@@ -65,13 +65,13 @@ echo "Apple Silicon?: $(uname -m)"     # arm64 = 是；x86_64 = Intel 老机器
 
 | 你的情况 | 选哪条 | 模型体积 | 运行内存 | 中文准确率* |
 |---|---|---|---|---|
-| **你用的 AI 本身支持上传音频** | **路径 A：零安装** ★最优先 | 0 | 0 | 看平台 |
-| Apple Silicon（M系列）+ 内存 8GB | 路径 B：whisper.cpp `small` | 约 466 MB | 约 0.8 GB | 词错率约 17% |
-| Apple Silicon + 内存 16GB 以上 | 路径 B：whisper.cpp `medium` | 约 1.5 GB | 约 2 GB | 词错率约 12% |
-| Windows，无独显，内存 8GB | 路径 B：whisper.cpp `base` 起 | 约 142 MB | 约 0.4 GB | 词错率约 22% |
-| Windows，无独显，内存 16GB+ | 路径 B：whisper.cpp `small`/`medium` | 466 MB–1.5 GB | 0.8–2 GB | 17% / 12% |
-| 有 NVIDIA 独显（显存 ≥6GB） | 路径 C：FunASR `paraformer-large` | 模型约 1.5 GB | 显存约 4.5 GB | 中文专门优化，通常更准 |
-| 只要"能认出个大概" | 路径 B：whisper.cpp `base` | 约 142 MB | 约 0.4 GB | 一般 |
+| **你用的 AI 本身支持上传音频** | **方案 A：零安装** ★最优先 | 0 | 0 | 看平台 |
+| Apple Silicon（M系列）+ 内存 8GB | 方案 B：whisper.cpp `small` | 约 466 MB | 约 0.8 GB | 词错率约 17% |
+| Apple Silicon + 内存 16GB 以上 | 方案 B：whisper.cpp `medium` | 约 1.5 GB | 约 2 GB | 词错率约 12% |
+| Windows，无独显，内存 8GB | 方案 B：whisper.cpp `base` 起 | 约 142 MB | 约 0.4 GB | 词错率约 22% |
+| Windows，无独显，内存 16GB+ | 方案 B：whisper.cpp `small`/`medium` | 466 MB–1.5 GB | 0.8–2 GB | 17% / 12% |
+| 有 NVIDIA 独显（显存 ≥6GB） | 方案 C：FunASR `paraformer-large` | 模型约 1.5 GB | 显存约 4.5 GB | 中文专门优化，通常更准 |
+| 只要"能认出个大概" | 方案 B：whisper.cpp `base` | 约 142 MB | 约 0.4 GB | 一般 |
 
 \* 词错率（WER）：越低越好。数据来自公开实测（AISHELL 中文测试集），**你的实际效果会因录音质量、老师口音、教室噪音明显浮动**，别当成承诺值。
 
@@ -85,13 +85,13 @@ echo "Apple Silicon?: $(uname -m)"     # arm64 = 是；x86_64 = Intel 老机器
 
 ## 第 2 步 · 安装（AI 给命令，你点头才执行）
 
-### 路径 A · 零安装（先试这个）
+### 方案 A · 零安装（先试这个）
 
 部分 AI 平台本身支持上传音频/视频并转写。**如果你用的 AI 有这功能，直接传录音，跳过下面所有步骤。**
 
 优点：不占硬盘、不装环境、跨系统。缺点：你传的内容会进入该平台，效果看平台。
 
-### 路径 B · whisper.cpp（跨平台推荐）
+### 方案 B · whisper.cpp（跨平台推荐）
 
 **macOS**
 
@@ -115,7 +115,7 @@ curl -L -o ~/ggml-small.bin https://huggingface.co/ggerganov/whisper.cpp/resolve
 2. **用 WSL**：在 PowerShell 里 `wsl --install`，进 WSL 后按上面 macOS 的 Linux 版步骤走。
 3. **自己编译**：需要装 CMake + Visual Studio Build Tools，非科班不推荐。
 
-### 路径 C · FunASR（中文更准，但环境重）
+### 方案 C · FunASR（中文更准，但环境重）
 
 需要 Python 环境 + PyTorch，模型约 1.5 GB，依赖安装容易卡。**只建议有 NVIDIA 独显或 16GB 以上内存的同学**。
 

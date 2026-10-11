@@ -1,7 +1,11 @@
 # zucc-zhiyun-course-digest
 
 > **学在城院 · 智云课堂课后整理助手**
-> 让**任何 AI 助手**把智云课堂上某一节课的课件与课堂录音，整理成一份带依据的 Markdown 笔记。
+> 让**能操作浏览器的 AI 助手**（Qoder / Cursor / Claude Desktop 等）
+> 把智云课堂某一节课的课件与课堂录音，整理成一份带依据的 Markdown 笔记。
+>
+> 你只需要在它打开的窗口里登录一次，之后取数、读课件、对齐时间轴、出笔记全部由 AI 做完。
+> 打不开浏览器的网页版 AI 只能帮你整理你自己导给它的内容——见「如果你的 AI 不能操作浏览器」。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Release: v0.2.0](https://img.shields.io/badge/release-v0.2.0-blue.svg)](https://github.com/xsjdye/zucc-zhiyun-course-digest/releases/tag/v0.2.0)
@@ -266,7 +270,7 @@ AI 是**读图**而不是解析 `.pptx`——有视觉能力的 AI 不需要装 
 zucc-zhiyun-course-digest/
 ├── README.md              本文件
 ├── SKILL.md               ★ 核心：给 AI 读的完整执行说明
-├── PROMPT.md              纯提示词单文件版（复制给任意 AI 就能用）
+├── PROMPT.md              纯提示词单文件版（复制给任意 AI 即可整理；取数要 AI 能开浏览器）
 ├── LICENSE                MIT
 ├── CHANGELOG.md           更新日志
 ├── assets/                本文件的示意图
