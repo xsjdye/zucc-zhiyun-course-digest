@@ -33,7 +33,8 @@
 - `examples/usage-example.md` —— 重写为 v2 示例
 - `examples/fallback-example.md` —— 降级写法（无转写）：`转写勘误` 段省略
 - `templates/lecture.md` —— 归档模板更新
-- `README.md` —— 笔记包含什么表更新
+- `README.md` —— 笔记包含什么表更新；**成品示意图 `assets/note-sample.svg` 同步改为 v2**
+  （原先画的是 v1 结构「一、知识点梳理 / 二、重点标注」，与新版正文不符）
 - `scripts/check-template-sync.py` —— 契约重写：
   必现 `骨架 / 重点 / 待办 / 遗漏`，可选 `易混易错点 / 转写勘误`
   模板围栏解析改用状态机，处理嵌套 ``` 围栏
