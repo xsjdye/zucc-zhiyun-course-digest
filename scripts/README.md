@@ -16,12 +16,8 @@
 
 它不装任何东西——**浏览器控制台就是它的运行环境**。所以"零依赖"这个说法仍然成立。
 
-里面有两个函数：
-
-| 函数 | 作用 |
-|---|---|
-| `zccFetch(日期, 关键词, {maxSec, pick})` | 取一节课的 `{meta, transcript, frames}` |
-| `zccProbe()` | **登录态预检**：一次 fetch 判定，返回 `loggedIn` 与原因。用来代替"导航进去试试看" |
+只有一个函数：`zccFetch(日期, 关键词, {maxSec, pick})`，取一节课的 `{meta, transcript, frames}`。
+它本身就是登录检查——跑通就是已登录，返回 `未传入token` 就是没登录，不用另写探针。
 
 三条硬规则（都是实测踩出来的）：
 
@@ -31,7 +27,7 @@
 
 还有一条关于登录的坑，值得单独记：未登录时 `classroom` **不发 302**，而是返回 200 + 前端外壳，
 由 SPA 自己 JS 跳去 `ca.hzcu.edu.cn/cas/login`。浏览器工具会把这次导航报成 `ERR_ABORTED`，
-**此时重试导航会打断 CAS 回跳，登录页闪一下就没了**。用 `zccProbe()` 判定，不要靠导航试。
+**此时重试导航会打断 CAS 回跳，登录页闪一下就没了**。登录态直接看 `zccFetch()` 跑不跑得通。
 详见 [`api-contract.md`](api-contract.md) 第 0.5 节。
 
 用法见文件顶部注释，或 [`README.md` 的「路径 B 具体怎么做」](../README.md)。

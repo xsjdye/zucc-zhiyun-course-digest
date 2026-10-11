@@ -27,31 +27,18 @@
 
 **不触发**：我要"整理整门课""所有课时都整理"时，先告诉我一次只做一个课时，问从哪节开始。
 
-## 第零步 · 登录态预检（最容易卡住，别跳过）
+## 第零步 · 打开页面，需要登录就让我登一下
 
-未登录时的实测重定向链：
+1. 打开 `https://classroom.hzcu.edu.cn/`——**只打开这一次**。
+2. 落在 `classroom.hzcu.edu.cn` → 已登录，直接往下做；
+   落到 `ca.hzcu.edu.cn/cas/login`（统一身份认证页）→ **不要再导航**，
+   告诉我"请在打开的登录页里自己输入账号密码，登录好告诉你"。我登录后浏览器会自己跳回 classroom。
+3. 我说好了之后，**直接继续跑 `zccFetch()`**——它本身就是登录检查：跑通就是成功，
+   返回 `未传入token` 就是还没登录，回到第 2 步再让我登一次。
 
-```
-classroom.hzcu.edu.cn
-  → yjapi.hzcu.edu.cn/casapi/index.php?r=auth/login&…
-    → ca.hzcu.edu.cn/cas/login?service=…     ← 登录表单在这里
-```
-
-`classroom` **不发 302**，它返回 200 + 前端外壳，跳转由 SPA 用 JS 做。
-所以浏览器工具会把这次导航报成 `ERR_ABORTED` / `chrome-error`——**这不是站点挂了**。
-
-> 🔴 **别在报 `ERR_ABORTED` 后重试导航。** 那是跳转在成功进行。
-> 再导航一次就会打断 CAS 回跳，我会看到"登录页闪一下就没了"，然后永远登不进去。
-
-正确做法：导航**一次** → 等 `location.hostname` 稳定 → 跑 `scripts/fetch-lesson.js` 里的 `zccProbe()`：
-
-- `loggedIn:true` → 继续
-- `why:"on-login-page"` 或 `"not-logged-in"` → **不要再导航**，让我在当前可见窗口自己输账号密码登录，
-  然后你**轮询 `zccProbe()`** 直到 `loggedIn:true`
-- `why:"wrong-origin"` → 切到 classroom 页面再跑
-
-**如果你的浏览器工具用的是独立 profile / 干净的 Chrome 实例（没有学校登录态）**，
-别硬拉我在陌生窗口里重新登录——直接改走路径 B，那本来就是给这种情况准备的。
+> ⚠️ classroom 未登录时**不返回 302**，而是照常返回 200 + 前端外壳，由页面自己的 JS 跳去登录页。
+> 工具会把这一跳的中断报成 `ERR_ABORTED` / `chrome-error`。**把它当失败去重试导航，就会把我正在填的
+> 登录页冲掉**——这就是"登录页闪一下就没了"。全程你不碰我的账号密码。
 
 ## 第一步 · 确认（不要跳过）
 
