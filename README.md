@@ -36,7 +36,7 @@
 - **下整个仓库**：浏览器打开 <https://github.com/xsjdye/zucc-zhiyun-course-digest> → 绿色 `Code` 按钮 →
   `Download ZIP` → 解压。或直接访问
   <https://github.com/xsjdye/zucc-zhiyun-course-digest/archive/refs/heads/main.zip>
-- **只要两个文件**（走路径 B 就够）：在浏览器里打开下面两个链接，右上角复制原文即可
+- **只要两个文件**：在浏览器里打开下面两个链接，右上角复制原文即可
   - [`PROMPT.md`](PROMPT.md) —— 粘给 AI 的说明书
   - [`scripts/fetch-lesson.js`](scripts/fetch-lesson.js) —— 取数脚本
 
@@ -63,7 +63,7 @@
 
 | # | 要确认的 | 怎么确认 | 不通怎么办 |
 |---|---|---|---|
-| 1 | **能不能看到 AI 打开的浏览器窗口** | 让 AI 打开 classroom，你这边要有页面出现、能点进输入框 | 看不到就让它切可见窗口；切不了就走**路径 B**（你自己浏览器跑脚本） |
+| 1 | **能不能看到 AI 打开的浏览器窗口** | 让 AI 打开 classroom，你这边要有页面出现、能点进输入框 | 看不到就让它切可见 / 前台窗口；实在切不了，这个 AI 就走降级（你导内容给它整理） |
 | 2 | **有没有登录态** | 页面停在 `classroom.hzcu.edu.cn` 就是已登录；跳到 `ca.hzcu.edu.cn` 就是没登录 | 在那个窗口登录一次即可，之后不用再登 |
 | 3 | **域名对不对** | 地址栏必须是 `classroom.hzcu.edu.cn` | 在 `education.hzcu.edu.cn` 等其它城院域名下跑会报 `Failed to fetch` |
 | 4 | **有没有 Python**（只有跑自检脚本才需要） | 终端输 `python3 --version`（Windows 用 `python --version`） | 没有也没关系：取数走的是浏览器控制台，**不依赖 Python**。只是上传前的隐私扫描要另找机器跑 |
@@ -96,54 +96,45 @@
 
 ---
 
-## 三种取数路径，按你的 AI 选一条
+## 主路径：AI 全自动，你只需要登录一次
 
-| 你用的 AI | 能自动取数吗 | 走哪条 |
-|---|---|---|
-| Qoder 桌面版 / Cursor / Claude Desktop，**且配了浏览器工具** | ✅ 全自动 | **路径 A** |
-| 网页版 / App 版 AI（豆包 / Kimi / 通义 / ChatGPT 等），不能操作浏览器 | ✅ 半自动 | **路径 B** |
-| 不想碰控制台 | ⚠️ 手动 | **路径 C** |
+你要做的只有两件事——**把 `PROMPT.md` 粘给 AI**，以及**第一次在 AI 打开的窗口里登录一下**。
+之后全部由 AI 自己做，不需要你下载、不需要你跑脚本、不需要你导内容：
 
-三条路**产出的笔记格式完全一样**，差别只在拿到的信息量。
+```
+你说：整理咱们的课：<课程名>，<日期> 那节
+AI 做：打开 classroom →（没登录就请你登一次）→ 取课表 → 取平台转写
+        → 取课件帧 → 读图 → 按时间轴对齐 → 出笔记
+```
 
-### 路径 A · AI 能操作浏览器
+前提只有一个：你的 AI 能操作浏览器。
 
-AI 在你已登录的页面里执行 [`scripts/fetch-lesson.js`](scripts/fetch-lesson.js)，然后：
+| 工具 | 要配什么 |
+|---|---|
+| Qoder 桌面版 | 开启 Browser Connector（浏览器连接） |
+| Cursor | 配置 Playwright 类 MCP 服务 |
+| Claude Desktop | 配置浏览器自动化类 MCP 服务 |
+
+AI 在页面里跑的是 [`scripts/fetch-lesson.js`](scripts/fetch-lesson.js)：
 
 ```js
 await zccFetch('2026-10-15', '数字媒体')                  // 整节
 await zccFetch('2026-10-15', '数字媒体', {maxSec: 900})    // 只要前 15 分钟
 ```
 
-要配的能力：Qoder 开启 Browser Connector；Cursor / Claude Desktop 配置浏览器类 MCP 服务。
+**"零依赖"仍然成立**——这个脚本的运行环境就是浏览器本身，你不用装任何东西。
 
-### 路径 B · AI 不能操作浏览器（网页版 AI 也能拿全量数据）
+## 如果你的 AI 不能操作浏览器
 
-这一步看着"程序员"，其实只是三次复制粘贴，而且**不经过 AI 任何凭据**：
-
-1. 在**已登录**的 <https://classroom.hzcu.edu.cn/> 页面按 `F12`（Mac：`⌥I`）→ 切到 **Console / 控制台**
-2. 打开 [`scripts/fetch-lesson.js`](scripts/fetch-lesson.js)，**全选复制**，粘进控制台，回车
-3. 输入下面这行，回车：
-   ```js
-   copy(await zccFetch('2026-10-15', '数字媒体'))
-   ```
-4. 结果已在剪贴板 → 直接 `⌘V` 粘给 AI
-
-不知道日期或课程全名？第二个参数传空字符串，它会把你那天的课列出来：
-
-```js
-await zccFetch('2026-10-15', '')                        // 列出当天课程
-await zccFetch('2026-10-15', '', {pick: 1})             // 选第 2 节
-await zccFetch('2026-10-15', '数字媒体', {maxSec: 900})  // 只要前 15 分钟
-```
-
-### 路径 C · 都不具备
-
-让 AI 只出「整理框架 + 待填清单」，你自己导内容给它。格式一样，但重点判定会降级为推测。
+网页版 / App 版 AI（豆包、Kimi、通义、ChatGPT 等）**碰不到你的浏览器**，因此取不到数据。
+这时只能走兜底：你把内容导给它，它负责整理。格式一样，但重点判定会降级为推测。
 流程见 [`examples/fallback-example.md`](examples/fallback-example.md)。
 
-> **"零依赖"是指不用装任何软件**——浏览器控制台就是 `fetch-lesson.js` 的运行环境。
-> 它不代表所有 AI 都能全自动，差的只是"谁去粘那一次脚本"。
+> 想要自动取数，就用一个能操作浏览器的 Agent 工具，这是主路径唯一的硬前提。
+>
+> （`fetch-lesson.js` 也可以由用户自己在浏览器控制台跑一次来喂数据，
+> 但那是**进阶用法、不是推荐路径**——让同学去粘控制台脚本，跟"方便"是反的。
+> 说明留在 [`scripts/README.md`](scripts/README.md)。）
 
 ---
 
@@ -225,7 +216,7 @@ python scripts\privacy-scan.py
 ## 常见问题
 
 **Q：我没有编程基础，能用吗？**
-能。不用装任何软件。路径 A 全自动；路径 B 只是"复制两次、粘贴两次"。
+能。不用装任何软件，也不用你做任何取数操作——只要你的 AI 能操作浏览器，你要做的就只有第一次登录那一下。
 
 **Q：我要把密码给 AI 吗？**
 **不要。** 你自己先在浏览器登录，然后要么 AI 复用你已登录的会话，要么你自己在控制台跑脚本。
@@ -251,11 +242,11 @@ AI 是**读图**而不是解析 `.pptx`——有视觉能力的 AI 不需要装 
 | 情况 | 怎么办 |
 |---|---|
 | **登录页闪一下就没了** | AI 在重定向途中**又导航了一次**。别再导航，让登录页停住，你自己输完账号密码，再让 AI 重新判定登录态 |
-| **登录页报 `ERR_TUNNEL_CONNECTION_FAILED` / 拒绝连接** | `ca.hzcu.edu.cn` **只有 HTTP，没有 HTTPS**。确认地址栏是 `http://` 开头；不行就关掉浏览器"始终使用安全连接"，或改走路径 B（不需要这个域名） |
+| **登录页报 `ERR_TUNNEL_CONNECTION_FAILED` / 拒绝连接** | `ca.hzcu.edu.cn` **只有 HTTP，没有 HTTPS**。确认地址栏是 `http://` 开头；不行就关掉浏览器"始终使用安全连接"，或改用能开浏览器的 Agent 工具（降级路径不需要这个域名） |
 | AI 报 `ERR_ABORTED` / `chrome-error` 打不开 classroom | **不是站点挂了**。未登录时 `classroom` 返回 200 + 前端外壳，由 SPA 用 JS 跳去 `ca.hzcu.edu.cn/cas/login`，工具把这一跳的中断误报成了失败 |
 | AI 的浏览器里没有登录态 | 正常，第一次用都会这样。在它打开的登录页里登一次就行，之后不用再登 |
 | 脚本报 `Failed to fetch` | 你不在 `classroom.hzcu.edu.cn` 域下。城院其它域名（如 `education.hzcu.edu.cn`）会被跨域策略拦掉 |
-| AI 说"我不能打开浏览器" | 正常，走路径 B |
+| AI 说"我不能打开浏览器" | 那是网页版 / App 版 AI 的限制，它取不到数据，只能帮你整理你导给它的内容。要全自动请换能操作浏览器的 Agent 工具 |
 | AI 要你提供账号密码 | **不要给。** 提醒它复用已登录会话或让你自己跑脚本；坚持要就换个 AI |
 | 课件只拿到 10 条 | 你传了 `page` / `per-page`。**不传分页参数会一次返回全部** |
 | 逐字稿糊成几大块 | 合并规则缺跨度上限，用 `fetch-lesson.js` 里的规则（间隔≤2s 且 跨度<40s 且 字数<220） |
