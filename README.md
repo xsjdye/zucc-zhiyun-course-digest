@@ -189,7 +189,8 @@ zucc-zhiyun-course-digest/
     ├── asr-setup.md       本地转写兜底（平台转写没生成时才用）
     ├── test-fetch-lesson.js  zccFetch 控制流测试（改过脚本就跑）
     ├── privacy-scan.py    上传前隐私扫描（含 --selftest）
-    └── check-template-sync.py  模板一致性自检
+    ├── check-template-sync.py  模板一致性自检
+    └── probe-api.sh       接口手工探测（只在没有浏览器环境时用）
 ```
 
 ---

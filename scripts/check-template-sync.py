@@ -38,7 +38,6 @@ TARGETS = [
     "examples/fallback-example.md",
 ]
 
-TEMPLATE_BLOCK_RE = re.compile(r"```markdown\n(.*?)```", re.S)
 
 # v2 必现标题（要在 markdown 模板块内出现；变量「第 N 段」单列）
 REQUIRED_HEADINGS = [
@@ -51,8 +50,12 @@ REQUIRED_HEADINGS = [
 # v2 双轨标记：每个走转写的文件至少各出现一次
 DUAL_TRACK_MARKERS = ["【课】", "【延】"]
 
-# 易混易错点是可选（自媒体类课不需要；概念重的课保留）
-OPTIONAL_HEADINGS = ["易混易错点"]
+# 可选章节：缺了不报错，但**会被点名**（缺哪些写进括号里）。
+# 「易混易错点」——自媒体类课不需要，概念重的课（古代汉语/数理）保留。
+# 「转写勘误」——没拿到转写的课就没有这一节（如 fallback-example）。
+# 注：早先「转写勘误」既不在必现也不在可选列表，等于**完全不被检查**，
+# 而注释还写着"只有用转写的文件才要求"——注释描述了一个不存在的检查。
+OPTIONAL_HEADINGS = ["易混易错点", "转写勘误"]
 
 # v2 新增 front matter 标记：每个 ```markdown 模板块内都要带
 V2_FRONT_MATTER_KEYS = ["format: v2", "persona:"]
@@ -78,7 +81,8 @@ LEGACY_HEADINGS_TO_FORBID = [
 CAPABILITY_MARKERS = ["zccFetch", "zccRecent", "withFrames", "minSec"]
 ALIGN_FILES = ["SKILL.md", "PROMPT.md"]
 
-# 只有用转写的文件才要求「转写勘误」+【课】/【延】。降级示例没有转写，但【延】仍要。
+# 双轨标记【课】/【延】只在这些文件里强制（降级示例没有转写，但【延】仍要）。
+# 「转写勘误」不在此强制——它按 OPTIONAL_HEADINGS 处理：缺了只点名、不报错。
 FULL_PATH_FILES = {
     "examples/note-template.md",
     "SKILL.md",
@@ -210,6 +214,21 @@ def main():
             for m in optional_missing:
                 extra.append(f"「{m}」可选未出现")
             print(f"✅ {rel}  ({'; '.join(extra) if extra else '无可选章节'})")
+
+    # SKILL.md「红线」的条目编号必须 1..N 唯一递增。
+    # 加这条是因为真出过事——凭据组后加了一条（登录重定向），但下面各组的编号没顺延，
+    # 于是两个组都从 7 开始，「第 7 条」指向不明，而只校章节名的检查器看不见编号。
+    sk = ROOT / "SKILL.md"
+    if sk.exists():
+        txt = sk.read_text(encoding="utf-8")
+        m = re.search(r"##\s*八、红线.*?(?=^##\s*九、)", txt, re.S | re.M)
+        if m:
+            nums = [int(x) for x in re.findall(r"^(\d+)\.\s", m.group(0), re.M)]
+            expect = list(range(1, len(nums) + 1))
+            if nums != expect:
+                drifted.append(("SKILL.md", ["红线编号不是 1..%d 唯一递增：实际 %s" % (len(nums), nums)]))
+                print("❌ SKILL.md")
+                print("     - 红线编号不是 1..%d 唯一递增：实际 %s" % (len(nums), nums))
 
     # 自包含文件的能力标记对齐（SKILL 与 PROMPT 必须同组出现）
     present = {}
