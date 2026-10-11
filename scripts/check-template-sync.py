@@ -67,6 +67,12 @@ LEGACY_HEADINGS_TO_FORBID = [
     "四、课后待办", "五、本次遗漏", "附：转写勘误",
 ]
 
+# 自包含文件的「取数能力」必须对齐：SKILL.md 与 PROMPT.md 都要提到同一组函数与选项。
+# 加这条是因为真出过事——PROMPT.md 的读帧指导整整一轮没写进去（那次编辑在 SKILL 的断言上
+# 失败整批中止了），而只校模板的检查器看不见这种执行步骤的漂移。
+CAPABILITY_MARKERS = ["zccFetch", "zccRecent", "withFrames", "minSec"]
+ALIGN_FILES = ["SKILL.md", "PROMPT.md"]
+
 # 只有用转写的文件才要求「转写勘误」+【课】/【延】。降级示例没有转写，但【延】仍要。
 FULL_PATH_FILES = {
     "examples/note-template.md",
@@ -197,6 +203,23 @@ def main():
             for m in optional_missing:
                 extra.append(f"「{m}」可选未出现")
             print(f"✅ {rel}  ({'; '.join(extra) if extra else '无可选章节'})")
+
+    # 自包含文件的能力标记对齐（SKILL 与 PROMPT 必须同组出现）
+    present = {}
+    for rel in ALIGN_FILES:
+        fp = ROOT / rel
+        if fp.exists():
+            txt = fp.read_text(encoding="utf-8")
+            present[rel] = set(m for m in CAPABILITY_MARKERS if m in txt)
+    if len(present) == len(ALIGN_FILES):
+        allm = set(CAPABILITY_MARKERS)
+        union = set().union(*present.values())
+        for rel, ms in present.items():
+            miss = (union - ms)
+            if miss:
+                drifted.append((rel, ["缺能力标记：%s（同组文件里有）" % '、'.join(sorted(miss))]))
+                print(f"❌ {rel}")
+                print(f"     - 缺能力标记：{'、'.join(sorted(miss))}（另一个自包含文件里有，说明执行步骤漂移）")
 
     print()
     if drifted:

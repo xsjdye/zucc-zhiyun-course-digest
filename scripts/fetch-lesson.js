@@ -11,7 +11,9 @@
  *      限制时长：zccFetch('2026-10-15', '数字媒体', {maxSec: 900})
  *      只要转写、不要帧列表（先看内容再决定下哪几帧，省上下文）：
  *          zccFetch('2026-10-15', '数字媒体', {withFrames: false})
- *   4. 忘了哪天有课：  zccRecent()            → 列最近 14 天有课的日期
+ *   4. 只取某一段（推荐姿势：先 withFrames:false 看转写分段，再按段补帧）：
+ *          zccFetch('2026-10-15', '数字媒体', {minSec: 2400, maxSec: 4800, withFrames: true})
+ *   5. 忘了哪天有课：  zccRecent()            → 列最近 14 天有课的日期
  *      （可用 {days: 30, keyword: '自媒体'} 收窄）
  *   4. 执行：  copy(await zccFetch(...))   ← 直接把结果复制到剪贴板，粘给任意 AI
  *
@@ -22,6 +24,8 @@ async function zccFetch(date, keyword, opts) {
   var TENANT = '21';
   opts = opts || {};
   var maxSec = typeof opts.maxSec === 'number' ? opts.maxSec : Infinity;
+  // minSec 是「段起点」：只有先有下界，才能一次只取某一段的帧（见头部用法 3）
+  var minSec = typeof opts.minSec === 'number' ? opts.minSec : 0;
 
   // 1) 当前用户 id —— 只在页面内解析，不返回
   var uid = '';
@@ -102,7 +106,7 @@ async function zccFetch(date, keyword, opts) {
       thumb: p.pptthumb || '',
       is_key: !!p.is_key                // 实测恒 false，别依赖
     };
-  }).filter(function (f) { return f.sec <= maxSec; });
+  }).filter(function (f) { return f.sec >= minSec && f.sec <= maxSec; });
   // withFrames:false 时只报数量、不返回列表——实测一节课可达 346 帧，
   // 先拿转写写正文、再按段挑几帧核对，是省上下文的关键
   var frames = opts.withFrames === false ? [] : allFrames;
@@ -115,6 +119,7 @@ async function zccFetch(date, keyword, opts) {
   var merged = [];
   segs.forEach(function (s) {
     if (Number(s.EndSec) > maxSec) return;
+    if (Number(s.EndSec) <= minSec) return;   // 完全落在本段之前
     var t = String(s.Text || '').trim();
     if (!t) return;
     var last = merged[merged.length - 1];
@@ -189,7 +194,8 @@ async function zccRecent(opts) {
   var remaining = days;
   var seen = {}, found = [];
 
-  // 接口一次最多覆盖 7 天，所以按 7 天一段往前扫
+  // 接口按周设计（名字就叫 get-week-schedules）；这里按 7 天一段往前扫。
+  // 注：是否真的拒绝更长区间**未实测**——分段即使多余也无害。
   while (remaining > 0) {
     var span = Math.min(7, remaining);
     var start = new Date(end.getTime() - (span - 1) * 864e5);

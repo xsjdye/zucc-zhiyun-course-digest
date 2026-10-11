@@ -20,11 +20,12 @@
 
 | 函数 | 作用 |
 |---|---|
-| `zccFetch(日期, 关键词, {maxSec, pick, withFrames})` | 取一节课的 `{meta, transcript, frames}` |
+| `zccFetch(日期, 关键词, {minSec, maxSec, pick, withFrames})` | 取一节课的 `{meta, transcript, frames}`；`minSec/maxSec` 是**左右都能卡**的时间窗 |
 | `zccRecent({days, keyword})` | 列最近 N 天**有课的日期**（同学记不住「上周三是几号」时用） |
 
 `withFrames: false` 只返回转写 + 帧总数、不带帧列表——实测一节课可达 346 帧，
 先拿转写写正文、再按段挑几帧核对，是省上下文的关键。
+配套的 `minSec` 是**下界**：没有它就只能取「0 到 N 秒」，等于每次都把前半节的帧全带回来。
 它本身就是登录检查——跑通就是已登录，返回 `未传入token` 就是没登录，不用另写探针。
 
 三条硬规则（都是实测踩出来的）：
