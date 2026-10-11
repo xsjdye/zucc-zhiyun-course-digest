@@ -26,6 +26,15 @@ import subprocess
 import sys
 from pathlib import Path
 
+# Windows / 被管道捕获时 locale 常是 GBK 或 C，直接 print 中文会 UnicodeEncodeError 崩掉。
+# 这里强制把输出切成 UTF-8（编不出的字符降级成 ?），宁可显示乱码也不要让门禁跑不起来。
+if hasattr(sys.stdout, "reconfigure"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 ROOT = Path(__file__).resolve().parent.parent
 
 # 不扫描的文件（本脚本自身含规则正则，会被自己命中）

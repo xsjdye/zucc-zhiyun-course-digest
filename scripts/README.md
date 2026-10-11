@@ -48,12 +48,21 @@
 ## 两个自检脚本
 
 ```bash
+# macOS / Linux
 python3 scripts/privacy-scan.py --selftest   # 先确认扫描器本身有效，再看结果才有意义
 python3 scripts/privacy-scan.py              # 只扫「git 认为会被上传的文件」，退出码非 0 就别上传
 
 python3 scripts/check-template-sync.py       # 退出码 0 = 同步，1 = 发现漂移
 python3 scripts/check-template-sync.py -v    # 同时打印基准契约内容
+
+# Windows：没有 python3 这个命令，换成 python，路径用反斜杠
+python scripts\privacy-scan.py --selftest
+python scripts\check-template-sync.py
 ```
+
+两个脚本**只用 Python 标准库，不需要 pip 装任何东西**，兼容 Python 3.8+。
+并且已内置输出编码兜底：在 GBK / C locale 下（Windows 控制台、或被 AI Agent 捕获输出时很常见）
+不会因为打印中文而 `UnicodeEncodeError` 崩掉。乱码不影响判定，介意的话先 `chcp 65001`。
 
 ### 为什么需要 check-template-sync.py
 

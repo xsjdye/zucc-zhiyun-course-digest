@@ -29,6 +29,19 @@
 
 ## 30 秒上手
 
+### 第 0 步：先拿到这几个文件
+
+不会用 git 也没关系，两种办法任选：
+
+- **下整个仓库**：浏览器打开 <https://github.com/xsjdye/zucc-zhiyun-course-digest> → 绿色 `Code` 按钮 →
+  `Download ZIP` → 解压。或直接访问
+  <https://github.com/xsjdye/zucc-zhiyun-course-digest/archive/refs/heads/main.zip>
+- **只要两个文件**（走路径 B 就够）：在浏览器里打开下面两个链接，右上角复制原文即可
+  - [`PROMPT.md`](PROMPT.md) —— 粘给 AI 的说明书
+  - [`scripts/fetch-lesson.js`](scripts/fetch-lesson.js) —— 取数脚本
+
+### 然后三步
+
 1. 在**自己的电脑浏览器**登录 <https://classroom.hzcu.edu.cn/>
 2. 打开 [`PROMPT.md`](PROMPT.md)，**全选复制**，粘到你 AI 对话框的最开头
 3. 说一句：
@@ -38,6 +51,24 @@
 ```
 
 **你的密码只存在你自己的设备上。** 本工具全程不接触、不记录、不上传账号密码，也不需要 token。
+
+> 第一次用如果 AI 打开的浏览器里没登录，它会让你**在它打开的那个窗口里登录一次**——
+> 这是正常的，登一次以后就不用再登了。详见「排错速查」。
+
+---
+
+## 换一台电脑第一次跑，先确认这四件事
+
+这个 skill 在我的机器上跑通过 ≠ 在你的机器上能跑通。冷启动最容易卡在这四处：
+
+| # | 要确认的 | 怎么确认 | 不通怎么办 |
+|---|---|---|---|
+| 1 | **能不能看到 AI 打开的浏览器窗口** | 让 AI 打开 classroom，你这边要有页面出现、能点进输入框 | 看不到就让它切可见窗口；切不了就走**路径 B**（你自己浏览器跑脚本） |
+| 2 | **有没有登录态** | 页面停在 `classroom.hzcu.edu.cn` 就是已登录；跳到 `ca.hzcu.edu.cn` 就是没登录 | 在那个窗口登录一次即可，之后不用再登 |
+| 3 | **域名对不对** | 地址栏必须是 `classroom.hzcu.edu.cn` | 在 `education.hzcu.edu.cn` 等其它城院域名下跑会报 `Failed to fetch` |
+| 4 | **有没有 Python**（只有跑自检脚本才需要） | 终端输 `python3 --version`（Windows 用 `python --version`） | 没有也没关系：取数走的是浏览器控制台，**不依赖 Python**。只是上传前的隐私扫描要另找机器跑 |
+
+前三条是取数主流程，第四条只影响自检工具。
 
 ---
 
@@ -174,9 +205,17 @@ await zccFetch('2026-10-15', '数字媒体', {maxSec: 900})  // 只要前 15 分
 ### 上传前必跑这两条
 
 ```bash
+# macOS / Linux
 python3 scripts/privacy-scan.py --selftest   # 先确认扫描器本身有效
-python3 scripts/privacy-scan.py              # 再扫仓库，退出码非 0 就不要上传
+python3 scripts/privacy-scan.py              # 再扫仓库
+
+# Windows（没有 python3 这个命令，用 python）
+python scripts\privacy-scan.py --selftest
+python scripts\privacy-scan.py
 ```
+
+> 退出码非 0 就**不要上传**。
+> Windows 若显示乱码，先执行 `chcp 65001` 再跑（不影响判定结果，脚本内部已做编码兜底）。
 
 它只看"git 认为会被上传的文件"，所以 `output/` 里的真实笔记不会误报；
 但你一旦把真实笔记挪进 `examples/` 这类会提交的位置，就会被拦住。
