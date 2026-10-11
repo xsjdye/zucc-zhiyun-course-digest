@@ -62,9 +62,14 @@ SEGMENT_RE = re.compile(r"^##\s*第\s*\d+\s*段[（(]", re.M)
 ANY_H2_RE = re.compile(r"^##\s+(.+?)\s*$", re.M)
 
 # 「附：转写勘误」等老格式被认为漂移——v2 已统一为「转写勘误」
+# v1 遗留词汇：带编号的标题 + **不带编号的术语**。
+# 加裸术语是因为真出过事——SKILL/PROMPT 开头的「职责定义」列的是 v1 四项，
+# 用的是不带编号的写法（`**知识点梳理**`），只禁「一、知识点梳理」的检查器看不见。
+# 「易混易错点」不在列——它是 v2 的可选节，合法。
 LEGACY_HEADINGS_TO_FORBID = [
     "一、知识点梳理", "二、重点标注", "三、易混易错点",
     "四、课后待办", "五、本次遗漏", "附：转写勘误",
+    "知识点梳理", "重点标注", "本次遗漏", "课后待办",
 ]
 
 # 自包含文件的「取数能力」必须对齐：SKILL.md 与 PROMPT.md 都要提到同一组函数与选项。
@@ -167,10 +172,12 @@ def main():
         optional_present = [h for h in OPTIONAL_HEADINGS if h in headings]
         optional_missing = [h for h in OPTIONAL_HEADINGS if h not in headings]
 
-        # v1 残留禁用
-        legacy_present = [h for h in LEGACY_HEADINGS_TO_FORBID if h in headings]
+        # v1 残留禁用：**扫全文件**，不只看第一个 markdown 块。
+        # 加这条是因为真出过事——SKILL.md 的「示例对话」是第二个块，还留着 v1 的
+        # 一/二/三/四/五 章节名，而只查首块的检查器完全看不见。
+        legacy_present = [h for h in LEGACY_HEADINGS_TO_FORBID if h in text]
         if legacy_present:
-            problems.append(f"残留 v1 标题「{'、'.join(legacy_present)}」")
+            problems.append(f"残留 v1 标题「{'、'.join(legacy_present)}」（全文件扫描）")
 
         # v2 front matter 标记
         for k in V2_FRONT_MATTER_KEYS:
