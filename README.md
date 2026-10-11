@@ -8,7 +8,7 @@
 > 打不开浏览器的网页版 AI 只能帮你整理你自己导给它的内容——见「如果你的 AI 不能操作浏览器」。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Release: v0.2.0](https://img.shields.io/badge/release-v0.2.0-blue.svg)](https://github.com/xsjdye/zucc-zhiyun-course-digest/releases/tag/v0.2.0)
+[![Release: v0.2.6](https://img.shields.io/badge/release-v0.2.6-blue.svg)](https://github.com/xsjdye/zucc-zhiyun-course-digest/releases/latest)
 
 ⚠️ 非浙大城市学院官方项目，仅供同学**个人学习**使用。请遵守学校相关规定。
 
