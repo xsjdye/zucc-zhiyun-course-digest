@@ -179,7 +179,7 @@ python scripts\privacy-scan.py
 zucc-zhiyun-course-digest/
 ├── SKILL.md               ★ 给 AI 读的完整执行说明
 ├── PROMPT.md              纯提示词单文件版（复制给任意 AI 即用）
-├── examples/              输出模板 + 正常 / 降级示例
+├── examples/              输出模板 / 正常示例 / 降级示例 / 课程综述示例
 ├── templates/             归档三件套：一讲 / 一门课 / 全部课程
 ├── assets/                README 里的两张示意图
 └── scripts/

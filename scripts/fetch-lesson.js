@@ -9,6 +9,10 @@
  *   2. F12 → Console（控制台）→ 整段粘贴本文件内容 → 回车
  *   3. 执行：  zccFetch('2026-10-15', '数字媒体')
  *      限制时长：zccFetch('2026-10-15', '数字媒体', {maxSec: 900})
+ *      只要转写、不要帧列表（先看内容再决定下哪几帧，省上下文）：
+ *          zccFetch('2026-10-15', '数字媒体', {withFrames: false})
+ *   4. 忘了哪天有课：  zccRecent()            → 列最近 14 天有课的日期
+ *      （可用 {days: 30, keyword: '自媒体'} 收窄）
  *   4. 执行：  copy(await zccFetch(...))   ← 直接把结果复制到剪贴板，粘给任意 AI
  *
  * 返回值只含课程内容，不含姓名以外的隐私字段；帧图 URL 无鉴权，等同课程内容，别外发。
@@ -88,7 +92,7 @@ async function zccFetch(date, keyword, opts) {
   // 3) 课件帧。注意：**不要传 page / per-page**，一传就变成每页 10 条
   var ppt = await (await fetch(API + '/courseapi/v2/schedule/search-ppt?course_id=' +
     encodeURIComponent(cid) + '&sub_id=' + encodeURIComponent(sid), { credentials: 'include' })).json();
-  var frames = (ppt.list || []).map(function (r) {
+  var allFrames = (ppt.list || []).map(function (r) {
     var p = {};
     try { p = JSON.parse(r.content) || {}; } catch (e) {}
     return {
@@ -99,6 +103,9 @@ async function zccFetch(date, keyword, opts) {
       is_key: !!p.is_key                // 实测恒 false，别依赖
     };
   }).filter(function (f) { return f.sec <= maxSec; });
+  // withFrames:false 时只报数量、不返回列表——实测一节课可达 346 帧，
+  // 先拿转写写正文、再按段挑几帧核对，是省上下文的关键
+  var frames = opts.withFrames === false ? [] : allFrames;
 
   // 4) 平台语音转写
   var tr = await (await fetch(API + '/courseapi/v3/web-socket/search-trans-result?sub_id=' +
@@ -131,9 +138,101 @@ async function zccFetch(date, keyword, opts) {
       text: merged.map(function (m) { return '**[' + mmss(m.b) + ']** ' + m.txt; }).join('\n\n')
     },
     frames: {
-      total: frames.length,
+      total: allFrames.length,
       list: frames,
       note: 'img 链接无鉴权，任何人拿到都能看 —— 等同课程内容，不要贴到公开位置。'
     }
+  };
+}
+
+
+/*
+ * zccRecent() —— 列出最近 N 天里有课的日期
+ *
+ * 为什么需要它：zccFetch 要求你报具体日期，但同学常常忘记"上周三是几号"。
+ * 这个函数把最近 N 天的课表扫一遍，只返回有课的日子，省得用户自己翻日历。
+ *
+ * 用法：
+ *   await zccRecent()                       // 默认最近 14 天
+ *   await zccRecent({days: 30})             // 放大到 30 天
+ *   await zccRecent({keyword: '自媒体'})     // 只看含关键词的课
+ *
+ * 返回：{ days: [ { date, weekday, courses: [ { course_title, begin, end, room_name, sub_id, course_id, status_label } ] } ] }
+ *       days 按日期升序；没有匹配时 days 为 []，并给一句 hint。
+ */
+async function zccRecent(opts) {
+  var API = 'https://yjapi.hzcu.edu.cn';
+  var TENANT = '21';
+  var WD = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  opts = opts || {};
+  var days = typeof opts.days === 'number' && opts.days > 0 ? Math.floor(opts.days) : 14;
+
+  function ymd(x) {
+    return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0');
+  }
+  function hhmm(ts) {
+    var x = new Date(Number(ts) * 1000);
+    return String(x.getHours()).padStart(2, '0') + ':' + String(x.getMinutes()).padStart(2, '0');
+  }
+
+  var uid = '';
+  try { uid = String(JSON.parse(sessionStorage.getItem('user') || '{}').user_id || ''); } catch (e) {}
+  if (!uid) {
+    var m = document.cookie.match(/(?:^|; )login_cmc_id=([^;]+)/);
+    if (m) uid = decodeURIComponent(m[1]);
+  }
+  if (!uid) throw new Error('未识别到登录身份，请先在浏览器登录 https://classroom.hzcu.edu.cn/');
+
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  var end = today;                 // 从今天往前推
+  var remaining = days;
+  var seen = {}, found = [];
+
+  // 接口一次最多覆盖 7 天，所以按 7 天一段往前扫
+  while (remaining > 0) {
+    var span = Math.min(7, remaining);
+    var start = new Date(end.getTime() - (span - 1) * 864e5);
+    var j;
+    try {
+      j = await (await fetch(API + '/courseapi/v2/schedule/get-week-schedules?user_id=' +
+        encodeURIComponent(uid) + '&tenant_id=' + TENANT +
+        '&start_at=' + ymd(start) + '&end_at=' + ymd(end), { credentials: 'include' })).json();
+    } catch (e) {
+      return { error: '取课表失败', detail: String(e).slice(0, 80), days: [] };
+    }
+    var list = (j.result && j.result.list) || [];
+    list.forEach(function (day) {
+      if (seen[day.day]) return;
+      seen[day.day] = 1;
+      var cs = (day.course || []).filter(function (c) {
+        return !opts.keyword || String(c.course_title || '').indexOf(opts.keyword) >= 0;
+      });
+      if (!cs.length) return;
+      found.push({
+        date: day.day,
+        weekday: WD[new Date(day.day + 'T00:00:00').getDay()],
+        courses: cs.map(function (c) {
+          return {
+            course_title: c.course_title,
+            begin: hhmm(c.start_at), end: hhmm(c.end_at),
+            room_name: c.room_name,
+            sub_id: String(c.id), course_id: String(c.course_id),
+            status_label: c.status_label
+          };
+        })
+      });
+    });
+    end = new Date(start.getTime() - 864e5);
+    remaining -= span;
+  }
+
+  found.sort(function (a, b) { return a.date < b.date ? -1 : (a.date > b.date ? 1 : 0); });
+  return {
+    days: found,
+    count: found.length,
+    hint: found.length
+      ? '挑一个日期，配课程关键词交给 zccFetch(日期, 关键词)'
+      : '最近 ' + days + ' 天没有匹配的课；可加大 {days: 30} 或去掉 keyword 再试'
   };
 }
