@@ -61,14 +61,14 @@ async function zccFetch(date, keyword, opts) {
   if (!matched.length) {
     var avail = [];
     days.forEach(function (day) { (day.course || []).forEach(function (c) { avail.push(day.day + ' ' + c.course_title); }); });
-    return { error: '该日期没有匹配「' + keyword + '」的课', hint: '本周有课的条目：', available: avail };
+    return { ok: false, error: '该日期没有匹配「' + keyword + '」的课', hint: '本周有课的条目：', available: avail };
   }
   if (matched.length > 1 && !opts.pick) {
-    return { error: '匹配到多节课，请用更长的关键词，或加 {pick: 序号}', matches: matched.map(function (c, i) { return { pick: i, title: c.course_title, time: c.begin_time, room: c.room_name }; }) };
+    return { ok: false, error: '匹配到多节课，请用更长的关键词，或加 {pick: 序号}', matches: matched.map(function (c, i) { return { pick: i, title: c.course_title, time: c.begin_time, room: c.room_name }; }) };
   }
   var idx = opts.pick || 0;
   if (idx >= matched.length) {
-    return { error: 'pick 超出范围：' + date + ' 只匹配到 ' + matched.length + ' 节，可选 0~' + (matched.length - 1) };
+    return { ok: false, error: 'pick 超出范围：' + date + ' 只匹配到 ' + matched.length + ' 节，可选 0~' + (matched.length - 1) };
   }
   var c = matched[idx];
 
@@ -132,6 +132,7 @@ async function zccFetch(date, keyword, opts) {
   });
 
   return {
+    ok: true,
     meta: meta,
     transcript: {
       available: !!item,
@@ -143,7 +144,8 @@ async function zccFetch(date, keyword, opts) {
       text: merged.map(function (m) { return '**[' + mmss(m.b) + ']** ' + m.txt; }).join('\n\n')
     },
     frames: {
-      total: allFrames.length,
+      total_all: (ppt.list || []).length,   // 该课全部帧数，不受时间窗影响
+      total: allFrames.length,              // **本次窗口内**的帧数（传了 minSec/maxSec 时会小于 total_all）
       list: frames,
       note: 'img 链接无鉴权，任何人拿到都能看 —— 等同课程内容，不要贴到公开位置。'
     }

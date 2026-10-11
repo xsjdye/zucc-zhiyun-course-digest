@@ -9,6 +9,7 @@
 | [`api-contract.md`](api-contract.md) | 接口契约、字段结构、时间轴对齐机制、**实测坑清单** | 接口返回异常时**先查它**，别猜 |
 | [`asr-setup.md`](asr-setup.md) | 本地转写指南：**先体检电脑，再按配置选模型** | **兜底路径**——仅当平台转写没生成时才需要 |
 | [`probe-api.sh`](probe-api.sh) | 手工探测接口（只读、带凭据脱敏） | 没有浏览器环境、要在终端里确认接口是否通的时候 |
+| [`test-fetch-lesson.js`](test-fetch-lesson.js) | `zccFetch` 控制流测试（零依赖，只用 node） | 改过 `fetch-lesson.js` 后跑：`node scripts/test-fetch-lesson.js`。桩掉三个接口，断言四条返回分支与 `total`/`total_all` 语义（8 条） |
 | [`privacy-scan.py`](privacy-scan.py) | 上传前隐私扫描（零依赖，含 `--selftest`） | **推送到公开仓库前必跑** |
 | [`check-template-sync.py`](check-template-sync.py) | 检查输出模板在各文件间是否同步 | 改过模板、加过章节之后跑一下 |
 

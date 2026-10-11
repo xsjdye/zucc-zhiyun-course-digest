@@ -163,6 +163,7 @@ python scripts\privacy-scan.py
 | 看不到 AI 打开的浏览器窗口 | 让它切到可见 / 前台窗口；切不了就说明这个 AI 走不了主路径，只能降级 |
 | 课件只拿到 10 条 | 你传了 `page` / `per-page`。**不传分页参数会一次返回全部** |
 | 逐字稿糊成几大块 | 合并规则缺跨度上限，用 `fetch-lesson.js` 里的规则（间隔≤2s 且 跨度<40s 且 字数<220） |
+| 读 `transcript.available` 报错 | 先看返回里的 `ok`：`false` 表示没匹配到课（只有 `error` 字段，没有 `transcript`）|
 | `transcript.available` 是 false | 该课转写未生成或无回放 → 走本地转写兜底，或如实标注"仅基于课件" |
 | 一节课太长、整理不完 | 用 `{maxSec: 900}` 先跑前 15 分钟；或按时间段分批 |
 | 想要更简 / 更详细 | 直接说，AI 会调整分段密度 |
@@ -186,6 +187,7 @@ zucc-zhiyun-course-digest/
     ├── fetch-lesson.js    ★ 取数脚本（浏览器控制台即运行环境）
     ├── api-contract.md    接口契约与实测坑清单
     ├── asr-setup.md       本地转写兜底（平台转写没生成时才用）
+    ├── test-fetch-lesson.js  zccFetch 控制流测试（改过脚本就跑）
     ├── privacy-scan.py    上传前隐私扫描（含 --selftest）
     └── check-template-sync.py  模板一致性自检
 ```

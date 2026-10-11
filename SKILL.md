@@ -127,7 +127,9 @@ description: 当用户提到「学在城院」「智云课堂」，或要把某�
    await zccFetch('2026-10-15', '数字媒体')                 // 整节
    await zccFetch('2026-10-15', '数字媒体', {maxSec: 900})   // 只要前 15 分钟
    ```
-   返回 `{meta, transcript, frames}`。**课程名不确定**时第二个参数传 `''`，它会列出当天课程让你选 `pick`；
+   返回 `{ok, meta, transcript, frames}`。**先看 `ok`**——`false` 时只有 `{error, ...}`（无匹配 / 多匹配 / `pick` 越界），
+   此时没有 `transcript`、`frames` 字段，别去读 `transcript.available`（会报错）。
+   **课程名不确定**时第二个参数传 `''`，它会列出当天课程让你选 `pick`；
    **连日期都不确定**（同学常说「上周那节」却记不住几号）时，先跑 `zccRecent({days: 14})` 列出最近有课的日期，
    再把选中的日期交给 `zccFetch`。**不要反过来让用户自己去翻日历。**
 3. **课件帧别全读——这是最容易把成本烧掉的一步。** 实测一节课可达 **346 帧**，全下全读会极慢、还会撑爆你的上下文。正确顺序是**转写优先、按需取帧**：
@@ -148,7 +150,7 @@ description: 当用户提到「学在城院」「智云课堂」，或要把某�
 > 用户自己在浏览器控制台跑一次 `fetch-lesson.js` 也能喂进全量数据，
 > 但那是**进阶备选、不要主动推荐给同学**——说明只留在 `scripts/README.md` 里。
 
-**转写拿不到时**（`transcript.available === false`）
+**转写拿不到时**（`ok === true` 且 `transcript.available === false`）
 
 1. 如实写"平台转写未生成"，**不要静默跳过**
 2. 问用户是否走本地转写兜底：`scripts/asr-setup.md`（先按电脑配置选模型，再动手）

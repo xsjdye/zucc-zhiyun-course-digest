@@ -4,6 +4,41 @@
 
 ---
 
+## [v0.3.6] — 2026-10-12
+
+### 通读 fetch-lesson.js 全文，查出两处契约不一致（都会让照文档写的人出错）
+
+前几轮我每次只读改动处，没通读过整份。这次通读 + 写了一个控制流测试。
+
+**🔴 一、出错时的返回形状和成功时完全不同**
+
+成功返回 `{meta, transcript, frames}`；而三条错误路径（无匹配 / 多匹配 / `pick` 越界）
+返回的是 `{error, ...}`——**没有 `transcript` 也没有 `frames`**。
+但文档一直告诉 AI 去读 `transcript.available`，照做在错误路径上直接抛 `TypeError`。
+
+修法：加 `ok` 判别位（成功 `true` / 失败 `false`），并把 SKILL、PROMPT、README 排错表、
+`api-contract.md` 全部改成"**先看 `ok`**"。
+
+**🔴 二、两个 `total` 语义不同，文档没区分**
+
+- `transcript.total_segments` 是**全课**段数（不受时间窗影响）
+- `frames.total` 是**窗口内**帧数（被 `minSec`/`maxSec` 过滤过）
+
+文档让人"拿帧总数"，而传了时间窗后拿到的是窗口数。修法：新增 `frames.total_all`
+（该课全部帧数），并在 `api-contract.md` 新增 §0.6 用一张表把四个字段的口径列清楚。
+
+### 新增：`scripts/test-fetch-lesson.js`
+
+这是目前**唯一覆盖 `zccFetch` 控制流**的测试——零依赖、只用 node，把三个接口桩掉，
+断言 8 条：三条错误分支都是 `ok:false` 且不带 `transcript`、成功分支 `ok:true`、
+`total_all` 不受窗口影响、`total` 受窗口影响、`withFrames:false` 只报数不给列表、
+按段只取窗口内帧与转写段。**8 条全过。**
+
+> 为什么现在才加：前几轮反复出现"我改坏了没发现、用户追问才发现"。测试覆盖能机械化的部分，
+> 就不必靠追问。桩数据用的是虚构课名，不是真实课表。
+
+---
+
 ## [v0.3.5] — 2026-10-11
 
 ### 又抓到三处 v1 残留，其中两处是「自己和自己矛盾」

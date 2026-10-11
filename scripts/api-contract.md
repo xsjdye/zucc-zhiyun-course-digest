@@ -58,6 +58,36 @@ classroom 发出的跳转本身用的是 `http://`，正常路径下不会踩到
 
 ---
 
+## 0.6 `zccFetch` 的返回形状（两种，别搞混）
+
+`zccFetch` 有**两套互不相同的返回形状**，中间靠 `ok` 判别：
+
+```js
+// 成功
+{ ok: true, meta: {...}, transcript: {available, total_segments, exported, text, ...}, frames: {total_all, total, list} }
+
+// 失败（无匹配 / 多匹配未指定 pick / pick 越界）
+{ ok: false, error: '…', matches?: [...], available?: [...] }
+```
+
+⚠️ **失败时没有 `transcript` 和 `frames` 字段。** 直接读 `r.transcript.available` 会抛 `TypeError`——
+必须先判 `ok`。这条是实测出来的：早期的文档让 AI 直接读 `transcript.available`，
+而三条错误路径上照做就崩。
+
+两个 `total` 的语义也不同：
+
+| 字段 | 含义 |
+|---|---|
+| `frames.total_all` | 该课**全部**帧数，不受时间窗影响 |
+| `frames.total` | **本次窗口内**的帧数（传了 `minSec`/`maxSec` 时会小于 `total_all`） |
+| `transcript.total_segments` / `total_chars` | 全课（同 `total_all` 的口径） |
+| `transcript.exported` / `exported_chars` | 窗口内合并后的段数与字数 |
+
+改了 `fetch-lesson.js` 之后跑 `node scripts/test-fetch-lesson.js`——它桩掉三个接口，
+把四条分支和上述语义差异都断言一遍（8 条）。
+
+---
+
 ## 1. 课表：定位课时，拿 `sub_id` / `course_id`
 
 ```
