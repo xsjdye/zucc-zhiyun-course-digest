@@ -78,12 +78,26 @@ python scripts\check-template-sync.py
 
 ### 为什么需要 check-template-sync.py
 
-输出模板必然在 5 个文件里各写一遍——因为 `SKILL.md` 和 `PROMPT.md` 必须**自包含**（同学可能只把单个文件丢给 AI），这种重复是设计使然、不能消除。
+输出模板必然在多个文件里各写一遍——因为 `SKILL.md` 和 `PROMPT.md` 必须**自包含**（同学可能只把单个文件丢给 AI），这种重复是设计使然、不能消除。
 
-但重复带来漂移风险：改了一处忘了另一处。这个脚本把 `examples/note-template.md` 当作**唯一契约源**，检查其余 4 处是否包含同样的 header 字段、**全部 `##` 标题**、以及转写版特有的结构标记（`- 依据：`、`｜转写`、`｜课件帧`）。
+但重复带来漂移风险：改了一处忘了另一处。这个脚本用**两个契约源**分别校验两类文档：
 
-> 早先只比对「一、二、三…」编号章节，导致新增「附：转写勘误」时检查器**照样报全绿**——假绿灯比没检查更糟。
-> 现在改模板后如果没同步，一定会被拦下来。可以故意删掉一处验证。
+- **单讲笔记**（契约源 `examples/note-template.md`）——`SKILL.md` / `PROMPT.md` / `templates/lecture.md` / `examples/usage-example.md` / `examples/fallback-example.md`：
+  必须含同样的 front matter 标记（`format: v2` / `persona:`）、必现 `##` 标题（骨架 / 重点 / 待办 / 遗漏）与 `第 N 段（…）` 结构；
+  走转写的文件还要有 `【课】`/`【延】`
+- **课程索引**（契约源 `templates/course-INDEX.md`）——`examples/course-index-example.md`：
+  必须含课程总纲 / 课程综述 / 课时表 / 复习进度，且综述三段齐全
+
+两条容易踩的实现细节，都做过破坏性测试：
+
+- **每个 ```markdown 块都校验**，不是只看第一块。`SKILL.md` 的第六节模板与第九节示例是两块，只看第一块会给第二块放假绿灯。
+- **围栏按 CommonMark 长度规则切分**：闭合围栏不得短于开启围栏。所以外层要用 **4 反引号**才能包住 3 反引号的内层围栏；否则 GitHub 上会渲染成两截。
+  不带围栏的原始模板（`templates/lecture.md`）退化为**整文件**校验。
+
+另外还校验：`SKILL.md` 第八节红线编号必须是 `1..N` 唯一递增；`SKILL.md` 与 `PROMPT.md` 的能力标记（`zccFetch` / `zccRecent` / `withFrames` / `minSec`）必须同组出现。
+
+> 早先版本有两个**假绿灯**：只比对「一、二、三…」编号章节，而且只看第一个 markdown 块。
+> 假绿灯比没检查更糟——现在改模板后如果没同步，一定会被拦下来。可以故意删掉一处验证。
 
 `examples/fallback-example.md` 是**降级示例**（没有转写），因此豁免「转写勘误」这一节。
 

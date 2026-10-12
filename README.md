@@ -5,7 +5,7 @@
 > 你只需登录一次，取数、读课件、对齐时间轴、出笔记全部由 AI 做完。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v0.3.1-blue.svg)](https://github.com/xsjdye/zucc-zhiyun-course-digest/releases/latest)
+[![Release](https://img.shields.io/github/v/release/xsjdye/zucc-zhiyun-course-digest)](https://github.com/xsjdye/zucc-zhiyun-course-digest/releases/latest)
 
 ⚠️ 非浙大城市学院官方项目，仅供同学**个人学习**使用。请遵守学校相关规定。
 
